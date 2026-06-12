@@ -97,8 +97,5 @@ void JsonOrderRepository::persist(const std::vector<Order>& orders)
 
 std::vector<Order> JsonOrderRepository::load() const
 {
-	std::vector<Order> result;
-	for (const auto& obj : jsonSplitObjects(jsonReadFile(m_filePath)))
-		result.push_back(fromJson(obj));
-	return result;
+	return jsonLoadAll<Order>(m_filePath, fromJson);
 }

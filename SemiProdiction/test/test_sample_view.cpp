@@ -35,11 +35,8 @@ TEST(SampleViewTest, ShowSampleList_EmptyList_ShowsNotice)
 	view.showSampleList({});
 	std::cout.rdbuf(oldBuf);
 
-	// "없습니다" — UTF-8 BOM 적용 후 한글 리터럴 비교 가능
-	// 안전을 위해 ASCII 범위 문자로도 검증 가능한 패턴 사용
 	const std::string output = oss.str();
 	EXPECT_FALSE(output.empty());
-	// showSampleList({}) 는 "등록된 시료가 없습니다.\n" 출력
-	// ASCII 부분 "." 또는 "\n" 으로 최소 출력 확인, 추가로 비어있지 않음을 검증
-	EXPECT_NE(output.find('.'), std::string::npos);
+	// "없습니다.\n" — 문장 끝 마침표+개행: '.' 단독보다 구체적
+	EXPECT_NE(output.find(".\n"), std::string::npos);
 }

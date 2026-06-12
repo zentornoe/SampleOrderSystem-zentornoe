@@ -2,6 +2,10 @@
 #include <iostream>
 #include <iomanip>
 
+namespace {
+	constexpr int TABLE_WIDTH = 74;
+}
+
 void SampleView::showSampleList(const std::vector<Sample>& samples) const
 {
 	if (samples.empty()) {
@@ -16,7 +20,7 @@ void SampleView::showSampleList(const std::vector<Sample>& samples) const
 		<< std::setw(8)  << "재고"
 		<< "가용재고"
 		<< "\n"
-		<< std::string(74, '-') << "\n";
+		<< std::string(TABLE_WIDTH, '-') << "\n";
 	for (const auto& s : samples) {
 		std::cout << std::left
 			<< std::setw(12) << s.getId()

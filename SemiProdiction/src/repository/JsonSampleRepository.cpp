@@ -95,8 +95,5 @@ void JsonSampleRepository::persist(const std::vector<Sample>& samples)
 
 std::vector<Sample> JsonSampleRepository::load() const
 {
-	std::vector<Sample> result;
-	for (const auto& obj : jsonSplitObjects(jsonReadFile(m_filePath)))
-		result.push_back(fromJson(obj));
-	return result;
+	return jsonLoadAll<Sample>(m_filePath, fromJson);
 }

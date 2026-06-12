@@ -50,7 +50,7 @@ inline std::string jsonGetStr(const std::string& obj, const std::string& key)
 {
 	auto k = obj.find("\"" + key + "\":");
 	if (k == std::string::npos) return "";
-	size_t afterColon = k + key.size() + 3;	// '"key":' 다음 위치
+	size_t afterColon = k + key.size() + 3;
 	size_t q1 = obj.find('"', afterColon);
 	if (q1 == std::string::npos) return "";
 	size_t q2 = obj.find('"', q1 + 1);
@@ -59,7 +59,6 @@ inline std::string jsonGetStr(const std::string& obj, const std::string& key)
 }
 
 // JSON 객체 문자열에서 숫자 값 추출 — double / int / long long 지원
-// 키가 없거나 파싱 실패 시 T{} (0) 반환
 template<typename T>
 inline T jsonGetNum(const std::string& obj, const std::string& key)
 {
@@ -69,8 +68,8 @@ inline T jsonGetNum(const std::string& obj, const std::string& key)
 	while (s < obj.size() && (obj[s] == ' ' || obj[s] == '\t' || obj[s] == '\n' || obj[s] == '\r')) ++s;
 	const std::string sub = obj.substr(s);
 	try {
-		if constexpr (std::is_same_v<T, double>)       return std::stod(sub);
-		else if constexpr (std::is_same_v<T, int>)     return std::stoi(sub);
+		if constexpr (std::is_same_v<T, double>)        return std::stod(sub);
+		else if constexpr (std::is_same_v<T, int>)      return std::stoi(sub);
 		else if constexpr (std::is_same_v<T, long long>) return std::stoll(sub);
 		else return T{};
 	}
@@ -81,6 +80,16 @@ inline T jsonGetNum(const std::string& obj, const std::string& key)
 inline double    jsonGetDbl (const std::string& obj, const std::string& key) { return jsonGetNum<double>   (obj, key); }
 inline int       jsonGetInt (const std::string& obj, const std::string& key) { return jsonGetNum<int>      (obj, key); }
 inline long long jsonGetLong(const std::string& obj, const std::string& key) { return jsonGetNum<long long>(obj, key); }
+
+// JSON 배열 파일을 읽어 T 객체 벡터로 변환 — fromJson 함수를 외부에서 주입
+template<typename T, typename FromJsonFn>
+inline std::vector<T> jsonLoadAll(const std::string& path, FromJsonFn fromJson)
+{
+	std::vector<T> result;
+	for (const auto& obj : jsonSplitObjects(jsonReadFile(path)))
+		result.push_back(fromJson(obj));
+	return result;
+}
 
 // JSON 배열을 파일에 저장 — toJson 변환 함수를 외부에서 주입
 template<typename T, typename ToJsonFn>
