@@ -6,7 +6,6 @@
 class SampleView {
 public:
 	void showSampleList(const std::vector<Sample>& samples) const;
-	void showSample(const Sample& sample) const;
 	void showRegisterSuccess(const std::string& id) const;
 	void showAddStockSuccess(const std::string& id, int quantity) const;
 
@@ -15,5 +14,5 @@ public:
 	double inputYield() const;
 	double inputAvgProdTime() const;
 	int inputStock() const;
-	int inputQuantity() const;
+	std::string inputSearchKeyword() const;
 };

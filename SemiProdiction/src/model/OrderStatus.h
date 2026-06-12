@@ -1,6 +1,5 @@
 ﻿#pragma once
 #include <string>
-#include <stdexcept>
 
 enum class OrderStatus {
 	RESERVED,

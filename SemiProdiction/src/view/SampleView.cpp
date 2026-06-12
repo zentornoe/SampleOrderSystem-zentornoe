@@ -33,16 +33,6 @@ void SampleView::showSampleList(const std::vector<Sample>& samples) const
 	}
 }
 
-void SampleView::showSample(const Sample& sample) const
-{
-	std::cout << "ID        : " << sample.getId()            << "\n"
-	          << "이름      : " << sample.getName()          << "\n"
-	          << "생산시간  : " << sample.getAvgProdTime()   << " 분\n"
-	          << "수율      : " << sample.getYield()         << "\n"
-	          << "재고      : " << sample.getStock()         << "\n"
-	          << "가용재고  : " << sample.getAvailableStock() << "\n";
-}
-
 void SampleView::showRegisterSuccess(const std::string& id) const
 {
 	std::cout << "[등록 완료] " << id << "\n";
@@ -93,10 +83,10 @@ int SampleView::inputStock() const
 	return val;
 }
 
-int SampleView::inputQuantity() const
+std::string SampleView::inputSearchKeyword() const
 {
-	std::cout << "수량 입력: ";
-	int val;
-	std::cin >> val;
+	std::cout << "검색 키워드: ";
+	std::string val;
+	std::getline(std::cin >> std::ws, val);
 	return val;
 }

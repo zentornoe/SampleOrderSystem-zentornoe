@@ -66,17 +66,17 @@ TEST_F(JsonOrderRepositoryTest, FindByStatus_ReturnsOnlyMatchingOrders)
 	EXPECT_EQ(confirmed[0].getOrderId(), "ORD-20260612-0004");
 }
 
-// 4. getNextSequence가 저장 건수 + 1을 반환하는지 검증
-TEST_F(JsonOrderRepositoryTest, GetNextSequence_ReturnsCountPlusOne)
+// 4. getNextSequence가 기존 ID 중 최대 시퀀스 + 1을 반환하는지 검증
+TEST_F(JsonOrderRepositoryTest, GetNextSequence_ReturnsMaxSequencePlusOne)
 {
 	JsonOrderRepository repo(TEST_FILE);
 	EXPECT_EQ(repo.getNextSequence(), 1);
 
 	repo.save(Order("ORD-20260612-0005", "S-001", "고객C", 30));
-	EXPECT_EQ(repo.getNextSequence(), 2);
+	EXPECT_EQ(repo.getNextSequence(), 6);
 
 	repo.save(Order("ORD-20260612-0006", "S-001", "고객D", 40));
-	EXPECT_EQ(repo.getNextSequence(), 3);
+	EXPECT_EQ(repo.getNextSequence(), 7);
 }
 
 // 5. 존재하지 않는 ID로 findById 호출 시 std::runtime_error가 발생하는지 검증

@@ -29,8 +29,8 @@ protected:
 		ctrl = std::make_unique<MonitoringController>(mockOrderRepo, mockSampleRepo, prodQueue);
 	}
 
-	Sample makeSample(int stock) {
-		return Sample("S-001", "시료A", 5.0, 0.92, stock);
+	Sample makeSample(int stock, int reservedQty = 0) {
+		return Sample("S-001", "시료A", 5.0, 0.92, stock, reservedQty);
 	}
 };
 
@@ -59,25 +59,25 @@ TEST_F(MonitoringControllerTest, GetOrderSummary_SixOrders_RejectsExcludedFromCo
 // 테스트 2: stock == reservedQty 경계값 → SUFFICIENT
 TEST_F(MonitoringControllerTest, GetStockStatus_StockEqualsReservedQty_ReturnsSufficient)
 {
-	EXPECT_CALL(mockSampleRepo, findById("S-001")).WillOnce(Return(makeSample(100)));
+	EXPECT_CALL(mockSampleRepo, findById("S-001")).WillOnce(Return(makeSample(100, 100)));
 
-	EXPECT_EQ(ctrl->getStockStatus("S-001", 100), StockStatus::SUFFICIENT);
+	EXPECT_EQ(ctrl->getStockStatus("S-001"), StockStatus::SUFFICIENT);
 }
 
 // 테스트 3: 0 < stock < reservedQty → SHORTAGE
 TEST_F(MonitoringControllerTest, GetStockStatus_StockLessThanReservedQty_ReturnsShortage)
 {
-	EXPECT_CALL(mockSampleRepo, findById("S-001")).WillOnce(Return(makeSample(30)));
+	EXPECT_CALL(mockSampleRepo, findById("S-001")).WillOnce(Return(makeSample(30, 100)));
 
-	EXPECT_EQ(ctrl->getStockStatus("S-001", 100), StockStatus::SHORTAGE);
+	EXPECT_EQ(ctrl->getStockStatus("S-001"), StockStatus::SHORTAGE);
 }
 
 // 테스트 4: stock == 0 → DEPLETED (reservedQty에 무관)
 TEST_F(MonitoringControllerTest, GetStockStatus_StockZero_ReturnsDepleted)
 {
-	EXPECT_CALL(mockSampleRepo, findById("S-001")).WillOnce(Return(makeSample(0)));
+	EXPECT_CALL(mockSampleRepo, findById("S-001")).WillOnce(Return(makeSample(0, 50)));
 
-	EXPECT_EQ(ctrl->getStockStatus("S-001", 50), StockStatus::DEPLETED);
+	EXPECT_EQ(ctrl->getStockStatus("S-001"), StockStatus::DEPLETED);
 }
 
 // 테스트 5: REJECTED 제외한 활성 주문 3건 반환

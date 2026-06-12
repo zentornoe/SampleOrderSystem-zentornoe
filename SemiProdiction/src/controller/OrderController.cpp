@@ -64,11 +64,7 @@ void OrderController::approveOrder(const std::string& orderId, long long nowSec)
 
 	if (availableStock >= order.getQuantity())
 	{
-		// 가용재고를 즉시 예약해야 동일 재고의 이중 승인을 막는다
 		order.confirm();
-		sample.reserveQty(order.getQuantity());
-		m_sampleRepo.update(sample);
-		m_orderRepo.update(order);
 	}
 	else
 	{
@@ -78,11 +74,11 @@ void OrderController::approveOrder(const std::string& orderId, long long nowSec)
 						  shortage, sample.getYield(), sample.getAvgProdTime());
 		m_prodQueue.push(job);
 		order.sendToProduction();
-		// 생산 완료 후 출고 추적을 위해 예약 수량 등록
-		sample.reserveQty(order.getQuantity());
-		m_sampleRepo.update(sample);
-		m_orderRepo.update(order);
 	}
+	// 가용재고를 즉시 예약해야 동일 재고의 이중 승인·생산 중복을 막는다
+	sample.reserveQty(order.getQuantity());
+	m_sampleRepo.update(sample);
+	m_orderRepo.update(order);
 }
 
 void OrderController::rejectOrder(const std::string& orderId)

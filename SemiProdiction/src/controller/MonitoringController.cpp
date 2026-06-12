@@ -27,11 +27,11 @@ OrderSummary MonitoringController::getOrderSummary() const
 	return summary;
 }
 
-StockStatus MonitoringController::getStockStatus(const std::string& sampleId,
-												  int reservedQty) const
+StockStatus MonitoringController::getStockStatus(const std::string& sampleId) const
 {
 	Sample sample = m_sampleRepo.findById(sampleId);
-	int stock = sample.getStock();
+	int stock       = sample.getStock();
+	int reservedQty = sample.getReservedQty();
 	// 고갈 판단을 부족보다 먼저 해야 stock==0 && reservedQty>0 오분류를 막는다
 	if (stock == 0)          return StockStatus::DEPLETED;
 	if (stock < reservedQty) return StockStatus::SHORTAGE;

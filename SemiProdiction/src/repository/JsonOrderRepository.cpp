@@ -87,7 +87,18 @@ bool JsonOrderRepository::exists(const std::string& id) const
 
 int JsonOrderRepository::getNextSequence() const
 {
-	return static_cast<int>(load().size()) + 1;
+	auto all = load();
+	if (all.empty()) return 1;
+	// size() 기반은 삭제 시 중복 발급되므로, 기존 ID에서 최대 시퀀스를 추출한다
+	int maxSeq = 0;
+	for (const auto& o : all) {
+		auto pos = o.getOrderId().rfind('-');
+		if (pos != std::string::npos) {
+			try { maxSeq = std::max(maxSeq, std::stoi(o.getOrderId().substr(pos + 1))); }
+			catch (...) {}
+		}
+	}
+	return maxSeq + 1;
 }
 
 void JsonOrderRepository::persist(const std::vector<Order>& orders)

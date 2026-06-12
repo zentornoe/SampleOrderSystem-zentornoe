@@ -2,6 +2,10 @@
 #include <iostream>
 #include <iomanip>
 
+namespace {
+	constexpr int TABLE_WIDTH = 60;
+}
+
 void ProductionView::showProductionQueue(const std::vector<ProductionJob>& jobs) const {
 	if (jobs.empty()) { showQueueEmpty(); return; }
 	std::cout << "\n[생산 대기 현황]\n";
@@ -10,7 +14,7 @@ void ProductionView::showProductionQueue(const std::vector<ProductionJob>& jobs)
 	          << std::setw(10) << "시료 ID"
 	          << std::setw(12) << "실생산량"
 	          << "완료 예정(초)\n";
-	std::cout << std::string(60, '-') << "\n";
+	std::cout << std::string(TABLE_WIDTH, '-') << "\n";
 	for (const auto& j : jobs) {
 		std::cout << std::setw(20) << j.getOrderId()
 		          << std::setw(10) << j.getSampleId()
@@ -23,10 +27,6 @@ void ProductionView::showCurrentJob(const ProductionJob& job) const {
 	std::cout << "\n[현재 생산 중] " << job.getOrderId()
 	          << " | 시료: " << job.getSampleId()
 	          << " | 실생산량: " << job.getActualProd() << "\n";
-}
-
-void ProductionView::showCompleteSuccess(const std::string& orderId) const {
-	std::cout << "[완료] 주문 " << orderId << " 생산이 완료되었습니다.\n";
 }
 
 void ProductionView::showQueueEmpty() const {

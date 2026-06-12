@@ -1,6 +1,7 @@
 ﻿#include <queue>
 #include <ctime>
 #include <iostream>
+#include <limits>
 #include <stdexcept>
 #include "model/ProductionJob.h"
 #include "repository/JsonSampleRepository.h"
@@ -19,9 +20,9 @@
 // ─────────────────────────────────────────────
 //  핸들러 전방선언
 // ─────────────────────────────────────────────
-static void handleSampleMenu(SampleController& ctrl, SampleView& view);
+static void handleSampleMenu(SampleController& ctrl, SampleView& view, MainView& mainView);
 static void handleOrderReserve(OrderController& orderCtrl, OrderView& orderView);
-static void handleOrderApproveReject(OrderController& orderCtrl, OrderView& orderView, long long nowSec);
+static void handleOrderApproveReject(OrderController& orderCtrl, OrderView& orderView, MainView& mainView, long long nowSec);
 static void handleProduction(ProductionController& prodCtrl, ProductionView& prodView);
 static void handleMonitoring(MonitoringController& monCtrl, SampleController& sampleCtrl, MonitorView& monView);
 static void handleRelease(ReleaseController& releaseCtrl, OrderView& orderView);
@@ -29,7 +30,7 @@ static void handleRelease(ReleaseController& releaseCtrl, OrderView& orderView);
 // ─────────────────────────────────────────────
 //  시료 관리 서브메뉴
 // ─────────────────────────────────────────────
-static void handleSampleMenu(SampleController& ctrl, SampleView& view)
+static void handleSampleMenu(SampleController& ctrl, SampleView& view, MainView& mainView)
 {
 	while (true) {
 		std::cout << "\n=== 시료 관리 ===\n"
@@ -41,7 +42,7 @@ static void handleSampleMenu(SampleController& ctrl, SampleView& view)
 		int choice = -1;
 		if (!(std::cin >> choice)) {
 			std::cin.clear();
-			std::cin.ignore(10000, '\n');
+			std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 			continue;
 		}
 		if (choice == 0) break;
@@ -56,7 +57,7 @@ static void handleSampleMenu(SampleController& ctrl, SampleView& view)
 				ctrl.registerSample(id, name, prodTime, yield, stock);
 				view.showRegisterSuccess(id);
 			} catch (const std::exception& e) {
-				std::cout << "[오류] " << e.what() << "\n";
+				mainView.showError(e.what());
 			}
 			break;
 		}
@@ -64,14 +65,12 @@ static void handleSampleMenu(SampleController& ctrl, SampleView& view)
 			view.showSampleList(ctrl.getAllSamples());
 			break;
 		case 3: {
-			std::cout << "검색 키워드: ";
-			std::string keyword;
-			std::getline(std::cin >> std::ws, keyword);
+			std::string keyword = view.inputSearchKeyword();
 			view.showSampleList(ctrl.searchByName(keyword));
 			break;
 		}
 		default:
-			std::cout << "[오류] 없는 메뉴입니다.\n";
+			mainView.showError("없는 메뉴입니다.");
 			break;
 		}
 	}
@@ -92,23 +91,16 @@ static void handleOrderReserve(OrderController& orderCtrl, OrderView& orderView)
 // ─────────────────────────────────────────────
 //  주문 승인 / 거절
 // ─────────────────────────────────────────────
-static void handleOrderApproveReject(OrderController& orderCtrl, OrderView& orderView, long long nowSec)
+static void handleOrderApproveReject(OrderController& orderCtrl, OrderView& orderView, MainView& mainView, long long nowSec)
 {
 	std::vector<Order> reserved = orderCtrl.getReservedOrders();
 	orderView.showOrderList(reserved);
 	if (reserved.empty()) return;
 
 	std::string orderId = orderView.inputOrderId();
+	orderView.showApproveRejectMenu();
+	int choice = orderView.inputApproveRejectChoice();
 
-	std::cout << "  1. 승인\n"
-	          << "  2. 거절\n"
-	          << "선택: ";
-	int choice = -1;
-	if (!(std::cin >> choice)) {
-		std::cin.clear();
-		std::cin.ignore(10000, '\n');
-		return;
-	}
 	switch (choice) {
 	case 1:
 		orderCtrl.approveOrder(orderId, nowSec);
@@ -119,7 +111,7 @@ static void handleOrderApproveReject(OrderController& orderCtrl, OrderView& orde
 		orderView.showRejectSuccess(orderId);
 		break;
 	default:
-		std::cout << "[오류] 없는 메뉴입니다.\n";
+		mainView.showError("없는 메뉴입니다.");
 		break;
 	}
 }
@@ -143,7 +135,7 @@ static void handleMonitoring(MonitoringController& monCtrl, SampleController& sa
 	monView.showOrderSummary(monCtrl.getOrderSummary());
 	monView.showActiveOrders(monCtrl.getActiveOrders());
 	for (const auto& s : sampleCtrl.getAllSamples()) {
-		monView.showStockStatus(s, monCtrl.getStockStatus(s.getId(), s.getReservedQty()));
+		monView.showStockStatus(s, monCtrl.getStockStatus(s.getId()));
 	}
 }
 
@@ -158,7 +150,7 @@ static void handleRelease(ReleaseController& releaseCtrl, OrderView& orderView)
 
 	std::string orderId = orderView.inputOrderId();
 	releaseCtrl.releaseOrder(orderId);
-	std::cout << "[출고 완료] " << orderId << "\n";
+	orderView.showReleaseSuccess(orderId);
 }
 
 // ─────────────────────────────────────────────
@@ -200,13 +192,13 @@ int main()
 				std::cout << "시스템을 종료합니다.\n";
 				return 0;
 			case 1:
-				handleSampleMenu(sampleCtrl, sampleView);
+				handleSampleMenu(sampleCtrl, sampleView, mainView);
 				break;
 			case 2:
 				handleOrderReserve(orderCtrl, orderView);
 				break;
 			case 3:
-				handleOrderApproveReject(orderCtrl, orderView, nowSec);
+				handleOrderApproveReject(orderCtrl, orderView, mainView, nowSec);
 				break;
 			case 4:
 				handleProduction(prodCtrl, prodView);

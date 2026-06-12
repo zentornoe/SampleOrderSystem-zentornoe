@@ -1,6 +1,7 @@
 ﻿#include "OrderView.h"
 #include "../model/OrderStatus.h"
 #include <iostream>
+#include <limits>
 #include <string>
 
 namespace {
@@ -49,6 +50,29 @@ void OrderView::showApproveSuccess(const std::string& orderId) const
 void OrderView::showRejectSuccess(const std::string& orderId) const
 {
 	std::cout << "[주문 거절 완료] " << orderId << "\n";
+}
+
+void OrderView::showReleaseSuccess(const std::string& orderId) const
+{
+	std::cout << "[출고 완료] " << orderId << "\n";
+}
+
+void OrderView::showApproveRejectMenu() const
+{
+	std::cout << "  1. 승인\n"
+	          << "  2. 거절\n"
+	          << "선택: ";
+}
+
+int OrderView::inputApproveRejectChoice() const
+{
+	int choice = -1;
+	if (!(std::cin >> choice)) {
+		std::cin.clear();
+		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+		return -1;
+	}
+	return choice;
 }
 
 std::string OrderView::inputSampleId() const

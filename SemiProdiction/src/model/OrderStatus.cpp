@@ -1,4 +1,5 @@
 ﻿#include "OrderStatus.h"
+#include <stdexcept>
 
 std::string toString(OrderStatus status)
 {

@@ -10,6 +10,9 @@ public:
 	void showReserveSuccess(const std::string& orderId) const;
 	void showApproveSuccess(const std::string& orderId) const;
 	void showRejectSuccess(const std::string& orderId) const;
+	void showReleaseSuccess(const std::string& orderId) const;
+	void showApproveRejectMenu() const;
+	int  inputApproveRejectChoice() const;
 
 	std::string inputSampleId() const;
 	std::string inputCustomerName() const;
