@@ -3,6 +3,10 @@
 #include <iostream>
 #include <string>
 
+namespace {
+	constexpr int TABLE_WIDTH = 64;
+}
+
 void OrderView::showOrderList(const std::vector<Order>& orders) const
 {
 	if (orders.empty()) {
@@ -11,7 +15,7 @@ void OrderView::showOrderList(const std::vector<Order>& orders) const
 	}
 
 	std::cout << "주문번호 | 시료 ID | 고객명 | 수량 | 상태" << "\n"
-		<< std::string(64, '-') << "\n";
+		<< std::string(TABLE_WIDTH, '-') << "\n";
 	for (const auto& order : orders) {
 		std::cout << order.getOrderId()
 			<< " | " << order.getSampleId()

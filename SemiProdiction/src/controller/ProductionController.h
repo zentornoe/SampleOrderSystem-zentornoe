@@ -8,12 +8,12 @@ class ISampleRepository;
 
 class ProductionController {
 public:
-	explicit ProductionController(std::queue<ProductionJob>& prodQueue,
-								  IOrderRepository& orderRepo,
-								  ISampleRepository& sampleRepo);
+	explicit ProductionController(IOrderRepository& orderRepo,
+								  ISampleRepository& sampleRepo,
+								  std::queue<ProductionJob>& prodQueue);
 
-	void   tick(long long nowSec);              // 완료 감지 및 상태 전이
-	double getProgress(long long nowSec) const; // 현재 작업 진행률 0~100
+	void   tick(long long nowSec);
+	double getProgress(long long nowSec) const;
 	bool hasJob() const;
 	ProductionJob peekNextJob() const;
 	std::vector<ProductionJob> getQueue() const;

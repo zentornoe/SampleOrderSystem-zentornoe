@@ -1,4 +1,5 @@
 ﻿#include "OrderController.h"
+#include "ProductionUtils.h"
 #include <algorithm>
 #include <stdexcept>
 
@@ -58,8 +59,7 @@ void OrderController::approveOrder(const std::string& orderId, long long nowSec)
 	Sample sample = m_sampleRepo.findById(order.getSampleId());
 
 	// 생산 진척도를 반영한 실효재고로 가용재고를 계산한다
-	int inProgress     = m_prodQueue.empty() ? 0 : m_prodQueue.front().getCurrentProd(nowSec);
-	int effectiveStock = sample.getStock() + inProgress;
+	int effectiveStock = sample.getStock() + getInProgressUnits(m_prodQueue, nowSec);
 	int availableStock = effectiveStock - sample.getReservedQty();
 
 	if (availableStock >= order.getQuantity())

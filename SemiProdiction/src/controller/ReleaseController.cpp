@@ -23,13 +23,14 @@ void ReleaseController::releaseOrder(const std::string& orderId)
 
 	Sample sample = m_sampleRepo.findById(order.getSampleId());
 
-	if (sample.getStock() < order.getQuantity())
+	if (!sample.isStockEnough(order.getQuantity()))
 		throw std::runtime_error("재고 부족으로 출고할 수 없습니다: " + orderId);
 
-	order.release();
-	m_orderRepo.update(order);
-
+	// 재고를 먼저 차감해야 order 상태 변경 후 재고 저장 실패 시 불일치를 막는다
 	sample.reduceStock(order.getQuantity());
 	sample.releaseQty(order.getQuantity());
 	m_sampleRepo.update(sample);
+
+	order.release();
+	m_orderRepo.update(order);
 }

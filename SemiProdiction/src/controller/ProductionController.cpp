@@ -7,12 +7,12 @@
 #include <stdexcept>
 
 ProductionController::ProductionController(
-	std::queue<ProductionJob>& prodQueue,
 	IOrderRepository& orderRepo,
-	ISampleRepository& sampleRepo)
-	: m_prodQueue(prodQueue)
-	, m_orderRepo(orderRepo)
+	ISampleRepository& sampleRepo,
+	std::queue<ProductionJob>& prodQueue)
+	: m_orderRepo(orderRepo)
 	, m_sampleRepo(sampleRepo)
+	, m_prodQueue(prodQueue)
 {}
 
 void ProductionController::tick(long long nowSec) {

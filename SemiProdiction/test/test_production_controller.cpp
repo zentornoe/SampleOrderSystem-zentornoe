@@ -24,7 +24,7 @@ protected:
 
 	void SetUp() override {
 		ctrl = std::make_unique<ProductionController>(
-			prodQueue, mockOrderRepo, mockSampleRepo);
+			mockOrderRepo, mockSampleRepo, prodQueue);
 	}
 
 	// avgProdTime=0.001 -> totalProdTime=0.002min -> (long long)(0.002*60)=0

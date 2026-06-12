@@ -29,7 +29,7 @@ protected:
 
 	void SetUp() override {
 		orderCtrl   = std::make_unique<OrderController>(mockOrderRepo, mockSampleRepo, prodQueue);
-		prodCtrl    = std::make_unique<ProductionController>(prodQueue, mockOrderRepo, mockSampleRepo);
+		prodCtrl    = std::make_unique<ProductionController>(mockOrderRepo, mockSampleRepo, prodQueue);
 		releaseCtrl = std::make_unique<ReleaseController>(mockOrderRepo, mockSampleRepo);
 	}
 

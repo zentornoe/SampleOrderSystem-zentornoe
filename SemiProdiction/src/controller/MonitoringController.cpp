@@ -1,4 +1,5 @@
 ﻿#include "MonitoringController.h"
+#include "ProductionUtils.h"
 #include "../model/OrderStatus.h"
 
 MonitoringController::MonitoringController(IOrderRepository& orderRepo,
@@ -39,9 +40,8 @@ StockStatus MonitoringController::getStockStatus(const std::string& sampleId,
 
 int MonitoringController::getEffectiveStock(const std::string& sampleId, long long nowSec) const
 {
-	Sample sample    = m_sampleRepo.findById(sampleId);
-	int    inProgress = m_prodQueue.empty() ? 0 : m_prodQueue.front().getCurrentProd(nowSec);
-	return sample.getStock() + inProgress;
+	Sample sample = m_sampleRepo.findById(sampleId);
+	return sample.getStock() + getInProgressUnits(m_prodQueue, nowSec);
 }
 
 std::vector<Order> MonitoringController::getActiveOrders() const

@@ -214,6 +214,7 @@
     <ClInclude Include="src\repository\JsonHelper.h" />
     <ClInclude Include="src\repository\JsonSampleRepository.h" />
     <ClInclude Include="src\repository\JsonOrderRepository.h" />
+    <ClInclude Include="src\controller\ProductionUtils.h" />
     <ClInclude Include="src\controller\SampleController.h" />
     <ClInclude Include="src\controller\OrderController.h" />
     <ClInclude Include="src\controller\ProductionController.h" />

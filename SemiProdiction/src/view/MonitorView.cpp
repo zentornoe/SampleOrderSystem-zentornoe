@@ -3,10 +3,14 @@
 #include <iostream>
 #include <iomanip>
 
+namespace {
+	constexpr int TABLE_WIDTH = 64;
+}
+
 void MonitorView::showOrderSummary(const OrderSummary& summary) const
 {
 	std::cout << "=== 주문 현황 ===\n"
-		<< std::string(64, '-') << "\n"
+		<< std::string(TABLE_WIDTH, '-') << "\n"
 		<< "접수 대기 (RESERVED) : " << summary.totalReserved  << "건\n"
 		<< "생산 중   (PRODUCING): " << summary.totalProducing << "건\n"
 		<< "출고 대기 (CONFIRMED): " << summary.totalConfirmed << "건\n"
@@ -21,14 +25,14 @@ void MonitorView::showActiveOrders(const std::vector<Order>& orders) const
 	}
 
 	std::cout << "=== 활성 주문 목록 ===\n"
-		<< std::string(64, '-') << "\n"
+		<< std::string(TABLE_WIDTH, '-') << "\n"
 		<< std::left
 		<< std::setw(20) << "주문번호"
 		<< std::setw(8)  << "시료"
 		<< std::setw(12) << "고객명"
 		<< std::setw(6)  << "수량"
 		<< "상태\n"
-		<< std::string(64, '-') << "\n";
+		<< std::string(TABLE_WIDTH, '-') << "\n";
 	for (const auto& order : orders) {
 		std::cout << std::left
 			<< std::setw(20) << order.getOrderId()
