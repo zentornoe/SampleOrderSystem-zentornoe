@@ -5,6 +5,8 @@
 #include <stdexcept>
 
 namespace {
+	constexpr const char* ERR_SAMPLE_NOT_FOUND = "시료를 찾을 수 없습니다: ";
+
 	std::string toJson(const Sample& s)
 	{
 		std::ostringstream oss;
@@ -45,19 +47,19 @@ void JsonSampleRepository::save(const Sample& sample)
 	persist(all);
 }
 
-Sample JsonSampleRepository::findById(const std::string& id)
+Sample JsonSampleRepository::findById(const std::string& id) const
 {
 	for (const auto& s : load())
 		if (s.getId() == id) return s;
-	throw std::runtime_error("시료를 찾을 수 없습니다: " + id);
+	throw std::runtime_error(ERR_SAMPLE_NOT_FOUND + id);
 }
 
-std::vector<Sample> JsonSampleRepository::findAll()
+std::vector<Sample> JsonSampleRepository::findAll() const
 {
 	return load();
 }
 
-std::vector<Sample> JsonSampleRepository::findByName(const std::string& keyword)
+std::vector<Sample> JsonSampleRepository::findByName(const std::string& keyword) const
 {
 	std::vector<Sample> result;
 	for (const auto& s : load())
@@ -76,10 +78,10 @@ void JsonSampleRepository::update(const Sample& sample)
 			return;
 		}
 	}
-	throw std::runtime_error("시료를 찾을 수 없습니다: " + sample.getId());
+	throw std::runtime_error(ERR_SAMPLE_NOT_FOUND + sample.getId());
 }
 
-bool JsonSampleRepository::exists(const std::string& id)
+bool JsonSampleRepository::exists(const std::string& id) const
 {
 	for (const auto& s : load())
 		if (s.getId() == id) return true;

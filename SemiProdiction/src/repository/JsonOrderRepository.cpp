@@ -4,6 +4,8 @@
 #include <stdexcept>
 
 namespace {
+	constexpr const char* ERR_ORDER_NOT_FOUND = "주문을 찾을 수 없습니다: ";
+
 	std::string toJson(const Order& o)
 	{
 		std::ostringstream oss;
@@ -43,19 +45,19 @@ void JsonOrderRepository::save(const Order& order)
 	persist(all);
 }
 
-Order JsonOrderRepository::findById(const std::string& id)
+Order JsonOrderRepository::findById(const std::string& id) const
 {
 	for (const auto& o : load())
 		if (o.getOrderId() == id) return o;
-	throw std::runtime_error("주문을 찾을 수 없습니다: " + id);
+	throw std::runtime_error(ERR_ORDER_NOT_FOUND + id);
 }
 
-std::vector<Order> JsonOrderRepository::findAll()
+std::vector<Order> JsonOrderRepository::findAll() const
 {
 	return load();
 }
 
-std::vector<Order> JsonOrderRepository::findByStatus(OrderStatus status)
+std::vector<Order> JsonOrderRepository::findByStatus(OrderStatus status) const
 {
 	std::vector<Order> result;
 	for (const auto& o : load())
@@ -73,17 +75,17 @@ void JsonOrderRepository::update(const Order& order)
 			return;
 		}
 	}
-	throw std::runtime_error("주문을 찾을 수 없습니다: " + order.getOrderId());
+	throw std::runtime_error(ERR_ORDER_NOT_FOUND + order.getOrderId());
 }
 
-bool JsonOrderRepository::exists(const std::string& id)
+bool JsonOrderRepository::exists(const std::string& id) const
 {
 	for (const auto& o : load())
 		if (o.getOrderId() == id) return true;
 	return false;
 }
 
-int JsonOrderRepository::getNextSequence()
+int JsonOrderRepository::getNextSequence() const
 {
 	return static_cast<int>(load().size()) + 1;
 }

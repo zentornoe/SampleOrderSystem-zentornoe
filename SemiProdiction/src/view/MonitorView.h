@@ -2,7 +2,7 @@
 #include <vector>
 #include "../model/Order.h"
 #include "../model/Sample.h"
-#include "../controller/MonitoringController.h"
+#include "../model/MonitoringSummary.h"
 
 class MonitorView {
 public:
