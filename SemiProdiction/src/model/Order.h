@@ -5,7 +5,6 @@
 
 class Order {
 public:
-	Order() = default;
 	Order(const std::string& orderId, const std::string& sampleId,
 		  const std::string& customerName, int quantity);
 	// 역직렬화용 생성자 — 파일 복원 시 사용, 유효성 검사 없음
@@ -20,12 +19,19 @@ public:
 	OrderStatus getStatus() const;
 	long long getCreatedAt() const;
 
-	void setStatus(OrderStatus status);
+	// 상태 전이 메서드 — 허용되지 않는 전이 시 std::logic_error 발생
+	void confirm();				// RESERVED  → CONFIRMED  (재고 충분)
+	void sendToProduction();	// RESERVED  → PRODUCING  (재고 부족)
+	void completeProduction();	// PRODUCING → CONFIRMED  (생산 완료)
+	void release();				// CONFIRMED → RELEASE
+	void reject();				// RESERVED  → REJECTED
 
 	bool isMonitored() const;
 	static std::string generateOrderId(int sequence);
 
 private:
+	Order() = default;				// Repository 역직렬화 전용
+
 	std::string m_orderId;
 	std::string m_sampleId;
 	std::string m_customerName;

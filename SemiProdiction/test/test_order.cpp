@@ -14,11 +14,11 @@ TEST(OrderTest, Constructor_DefaultStatusIsReserved)
 	EXPECT_EQ(o.getStatus(), OrderStatus::RESERVED);
 }
 
-// 2. setStatus 호출 후 상태가 변경되는지 검증
-TEST(OrderTest, SetStatus_ChangesStatus)
+// 2. confirm 호출 후 상태가 CONFIRMED로 전이되는지 검증
+TEST(OrderTest, Confirm_TransitionsToConfirmed)
 {
 	Order o("ORD-20260612-0001", "S-001", "삼성전자", 200);
-	o.setStatus(OrderStatus::CONFIRMED);
+	o.confirm();
 	EXPECT_EQ(o.getStatus(), OrderStatus::CONFIRMED);
 }
 
@@ -26,26 +26,32 @@ TEST(OrderTest, SetStatus_ChangesStatus)
 TEST(OrderTest, IsMonitored_ReturnsFalseForRejected)
 {
 	Order o("ORD-20260612-0001", "S-001", "삼성전자", 200);
-	o.setStatus(OrderStatus::REJECTED);
+	o.reject();
 	EXPECT_FALSE(o.isMonitored());
 }
 
 // 4. 활성 상태(RESERVED, CONFIRMED, PRODUCING, RELEASE)에서 isMonitored가 true를 반환하는지 검증
 TEST(OrderTest, IsMonitored_ReturnsTrueForActiveStatuses)
 {
-	Order o("ORD-20260612-0002", "S-001", "SK하이닉스", 100);
+	// RESERVED
+	Order o1("ORD-20260612-0002", "S-001", "SK하이닉스", 100);
+	EXPECT_TRUE(o1.isMonitored());
 
-	o.setStatus(OrderStatus::RESERVED);
-	EXPECT_TRUE(o.isMonitored());
+	// CONFIRMED
+	Order o2("ORD-20260612-0002", "S-001", "SK하이닉스", 100);
+	o2.confirm();
+	EXPECT_TRUE(o2.isMonitored());
 
-	o.setStatus(OrderStatus::CONFIRMED);
-	EXPECT_TRUE(o.isMonitored());
+	// PRODUCING
+	Order o3("ORD-20260612-0002", "S-001", "SK하이닉스", 100);
+	o3.sendToProduction();
+	EXPECT_TRUE(o3.isMonitored());
 
-	o.setStatus(OrderStatus::PRODUCING);
-	EXPECT_TRUE(o.isMonitored());
-
-	o.setStatus(OrderStatus::RELEASE);
-	EXPECT_TRUE(o.isMonitored());
+	// RELEASE
+	Order o4("ORD-20260612-0002", "S-001", "SK하이닉스", 100);
+	o4.confirm();
+	o4.release();
+	EXPECT_TRUE(o4.isMonitored());
 }
 
 // 5. generateOrderId가 올바른 형식을 반환하는지 검증
@@ -67,4 +73,15 @@ TEST(OrderTest, Constructor_NegativeQuantity_Throws)
 		Order("ORD-20260612-0003", "S-001", "LG전자", 0),
 		std::invalid_argument
 	);
+}
+
+// 7. 잘못된 상태에서 전이 메서드 호출 시 std::logic_error가 발생하는지 검증
+TEST(OrderTest, InvalidTransition_Throws)
+{
+	Order o("ORD-20260612-0004", "S-001", "삼성전자", 50);
+	o.confirm();
+	// CONFIRMED 상태에서 confirm() 재호출 → 예외
+	EXPECT_THROW(o.confirm(), std::logic_error);
+	// CONFIRMED 상태에서 reject() → 예외
+	EXPECT_THROW(o.reject(), std::logic_error);
 }

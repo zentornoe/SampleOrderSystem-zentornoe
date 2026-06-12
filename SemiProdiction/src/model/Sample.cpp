@@ -48,14 +48,14 @@ bool Sample::isStockEnough(int quantity) const
 	return m_stock >= quantity;
 }
 
-void Sample::addReservedQty(int quantity)
+void Sample::reserveQty(int quantity)
 {
 	if (quantity <= 0)
 		throw std::invalid_argument("예약 수량은 0 초과여야 합니다.");
 	m_reservedQty += quantity;
 }
 
-void Sample::releaseReservedQty(int quantity)
+void Sample::releaseQty(int quantity)
 {
 	if (quantity > m_reservedQty)
 		throw std::runtime_error("예약 수량 부족");

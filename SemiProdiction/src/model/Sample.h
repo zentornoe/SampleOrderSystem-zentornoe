@@ -3,7 +3,6 @@
 
 class Sample {
 public:
-	Sample() = default;
 	Sample(const std::string& id, const std::string& name,
 		   double avgProdTime, double yield, int stock,
 		   int reservedQty = 0);
@@ -20,10 +19,12 @@ public:
 	void reduceStock(int quantity);
 	bool isStockEnough(int quantity) const;
 
-	void addReservedQty(int quantity);		// 승인 시 예약 수량 증가
-	void releaseReservedQty(int quantity);	// 출고 시 예약 수량 감소
+	void reserveQty(int quantity);		// 승인 시 예약 수량 증가
+	void releaseQty(int quantity);		// 출고 시 예약 수량 감소
 
 private:
+	Sample() = default;				// Repository 역직렬화 전용
+
 	std::string m_id;
 	std::string m_name;
 	double m_avgProdTime = 0.0;

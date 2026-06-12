@@ -31,7 +31,40 @@ int Order::getQuantity() const { return m_quantity; }
 OrderStatus Order::getStatus() const { return m_status; }
 long long Order::getCreatedAt() const { return m_createdAt; }
 
-void Order::setStatus(OrderStatus status) { m_status = status; }
+void Order::confirm()
+{
+	if (m_status != OrderStatus::RESERVED)
+		throw std::logic_error("confirm은 RESERVED 상태에서만 가능합니다.");
+	m_status = OrderStatus::CONFIRMED;
+}
+
+void Order::sendToProduction()
+{
+	if (m_status != OrderStatus::RESERVED)
+		throw std::logic_error("sendToProduction은 RESERVED 상태에서만 가능합니다.");
+	m_status = OrderStatus::PRODUCING;
+}
+
+void Order::completeProduction()
+{
+	if (m_status != OrderStatus::PRODUCING)
+		throw std::logic_error("completeProduction은 PRODUCING 상태에서만 가능합니다.");
+	m_status = OrderStatus::CONFIRMED;
+}
+
+void Order::release()
+{
+	if (m_status != OrderStatus::CONFIRMED)
+		throw std::logic_error("release는 CONFIRMED 상태에서만 가능합니다.");
+	m_status = OrderStatus::RELEASE;
+}
+
+void Order::reject()
+{
+	if (m_status != OrderStatus::RESERVED)
+		throw std::logic_error("reject는 RESERVED 상태에서만 가능합니다.");
+	m_status = OrderStatus::REJECTED;
+}
 
 bool Order::isMonitored() const
 {

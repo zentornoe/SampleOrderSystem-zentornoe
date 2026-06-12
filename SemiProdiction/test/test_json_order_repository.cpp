@@ -40,7 +40,7 @@ TEST_F(JsonOrderRepositoryTest, Update_PersistsStatusChange)
 	Order o("ORD-20260612-0002", "S-001", "SK하이닉스", 50);
 	repo.save(o);
 
-	o.setStatus(OrderStatus::CONFIRMED);
+	o.confirm();
 	repo.update(o);
 
 	auto loaded = repo.findById("ORD-20260612-0002");
@@ -53,7 +53,7 @@ TEST_F(JsonOrderRepositoryTest, FindByStatus_ReturnsOnlyMatchingOrders)
 	JsonOrderRepository repo(TEST_FILE);
 	Order o1("ORD-20260612-0003", "S-001", "고객A", 10);
 	Order o2("ORD-20260612-0004", "S-001", "고객B", 20);
-	o2.setStatus(OrderStatus::CONFIRMED);
+	o2.confirm();
 	repo.save(o1);
 	repo.save(o2);
 

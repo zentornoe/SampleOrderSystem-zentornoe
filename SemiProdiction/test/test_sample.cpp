@@ -60,37 +60,37 @@ TEST(SampleTest, GetAvailableStock_ReturnsStockMinusReserved)
 	EXPECT_EQ(s.getAvailableStock(), 280);
 }
 
-// 7. addReservedQty 호출 후 예약 수량이 증가하는지 검증
-TEST(SampleTest, AddReservedQty_IncreasesReserved)
+// 7. reserveQty 호출 후 예약 수량이 증가하는지 검증
+TEST(SampleTest, ReserveQty_IncreasesReserved)
 {
 	Sample s("S-007", "test", 1.0, 0.9, 480);
-	s.addReservedQty(100);
+	s.reserveQty(100);
 	EXPECT_EQ(s.getReservedQty(), 100);
 	EXPECT_EQ(s.getAvailableStock(), 380);
 }
 
-// 8. releaseReservedQty 호출 후 예약 수량이 감소하는지 검증
-TEST(SampleTest, ReleaseReservedQty_DecreasesReserved)
+// 8. releaseQty 호출 후 예약 수량이 감소하는지 검증
+TEST(SampleTest, ReleaseQty_DecreasesReserved)
 {
 	Sample s("S-008", "test", 1.0, 0.9, 480, 200);
-	s.releaseReservedQty(200);
+	s.releaseQty(200);
 	EXPECT_EQ(s.getReservedQty(), 0);
 	EXPECT_EQ(s.getAvailableStock(), 480);
 }
 
 // 9. 예약 수량보다 많이 해제하면 runtime_error가 발생하는지 검증
-TEST(SampleTest, ReleaseReservedQty_WhenInsufficient_Throws)
+TEST(SampleTest, ReleaseQty_WhenInsufficient_Throws)
 {
 	Sample s("S-009", "test", 1.0, 0.9, 480, 50);
-	EXPECT_THROW(s.releaseReservedQty(100), std::runtime_error);
+	EXPECT_THROW(s.releaseQty(100), std::runtime_error);
 }
 
 // 10. reservedQty가 stock보다 많더라도 getAvailableStock은 0 이상인지 검증
 TEST(SampleTest, GetAvailableStock_NeverGoesNegative)
 {
 	Sample s("S-010", "test", 1.0, 0.9, 100, 0);
-	s.addReservedQty(100);
-	s.addReservedQty(50);	// reservedQty=150, stock=100
+	s.reserveQty(100);
+	s.reserveQty(50);	// reservedQty=150, stock=100
 	EXPECT_EQ(s.getAvailableStock(), 0);	// max(0, 100-150) = 0
 }
 
@@ -98,7 +98,7 @@ TEST(SampleTest, GetAvailableStock_NeverGoesNegative)
 //  OrderStatusTest
 // ============================================================
 
-// 6. toString/fromString 왕복(round-trip) 검증 + 잘못된 문자열 예외
+// 11. toString/fromString 왕복(round-trip) 검증 + 잘못된 문자열 예외
 TEST(OrderStatusTest, ToString_And_FromString_RoundTrip)
 {
 	// 5개 상태 왕복 검증
