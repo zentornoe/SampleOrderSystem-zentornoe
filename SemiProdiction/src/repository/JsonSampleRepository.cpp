@@ -88,15 +88,7 @@ bool JsonSampleRepository::exists(const std::string& id)
 
 void JsonSampleRepository::persist(const std::vector<Sample>& samples)
 {
-	std::ostringstream oss;
-	oss << "[\n";
-	for (size_t i = 0; i < samples.size(); ++i) {
-		oss << "  " << toJson(samples[i]);
-		if (i + 1 < samples.size()) oss << ",";
-		oss << "\n";
-	}
-	oss << "]";
-	jsonWriteFile(m_filePath, oss.str());
+	jsonPersistArray(m_filePath, samples, toJson);
 }
 
 std::vector<Sample> JsonSampleRepository::load() const

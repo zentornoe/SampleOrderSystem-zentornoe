@@ -4,6 +4,7 @@
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
+#include <type_traits>
 
 // JSON 배열 "[{...},{...}]" 을 개별 "{...}" 문자열 목록으로 분리
 inline std::vector<std::string> jsonSplitObjects(const std::string& json)
@@ -57,32 +58,44 @@ inline std::string jsonGetStr(const std::string& obj, const std::string& key)
 	return obj.substr(q1 + 1, q2 - q1 - 1);
 }
 
-// JSON 객체 문자열에서 double 값 추출: "key":number
-inline double jsonGetDbl(const std::string& obj, const std::string& key)
+// JSON 객체 문자열에서 숫자 값 추출 — double / int / long long 지원
+// 키가 없거나 파싱 실패 시 T{} (0) 반환
+template<typename T>
+inline T jsonGetNum(const std::string& obj, const std::string& key)
 {
 	auto k = obj.find("\"" + key + "\":");
-	if (k == std::string::npos) return 0.0;
+	if (k == std::string::npos) return T{};
 	size_t s = k + key.size() + 3;
 	while (s < obj.size() && (obj[s] == ' ' || obj[s] == '\t' || obj[s] == '\n' || obj[s] == '\r')) ++s;
-	try { return std::stod(obj.substr(s)); } catch (...) { return 0.0; }
+	const std::string sub = obj.substr(s);
+	try {
+		if constexpr (std::is_same_v<T, double>)       return std::stod(sub);
+		else if constexpr (std::is_same_v<T, int>)     return std::stoi(sub);
+		else if constexpr (std::is_same_v<T, long long>) return std::stoll(sub);
+		else return T{};
+	}
+	catch (...) { return T{}; }
 }
 
-// JSON 객체 문자열에서 int 값 추출
-inline int jsonGetInt(const std::string& obj, const std::string& key)
-{
-	auto k = obj.find("\"" + key + "\":");
-	if (k == std::string::npos) return 0;
-	size_t s = k + key.size() + 3;
-	while (s < obj.size() && (obj[s] == ' ' || obj[s] == '\t' || obj[s] == '\n' || obj[s] == '\r')) ++s;
-	try { return std::stoi(obj.substr(s)); } catch (...) { return 0; }
-}
+// 타입별 편의 래퍼
+inline double    jsonGetDbl (const std::string& obj, const std::string& key) { return jsonGetNum<double>   (obj, key); }
+inline int       jsonGetInt (const std::string& obj, const std::string& key) { return jsonGetNum<int>      (obj, key); }
+inline long long jsonGetLong(const std::string& obj, const std::string& key) { return jsonGetNum<long long>(obj, key); }
 
-// JSON 객체 문자열에서 long long 값 추출
-inline long long jsonGetLong(const std::string& obj, const std::string& key)
+// JSON 배열을 파일에 저장 — toJson 변환 함수를 외부에서 주입
+template<typename T, typename ToJsonFn>
+inline void jsonPersistArray(
+	const std::string& path,
+	const std::vector<T>& items,
+	ToJsonFn toJson)
 {
-	auto k = obj.find("\"" + key + "\":");
-	if (k == std::string::npos) return 0LL;
-	size_t s = k + key.size() + 3;
-	while (s < obj.size() && (obj[s] == ' ' || obj[s] == '\t' || obj[s] == '\n' || obj[s] == '\r')) ++s;
-	try { return std::stoll(obj.substr(s)); } catch (...) { return 0LL; }
+	std::ostringstream oss;
+	oss << "[\n";
+	for (size_t i = 0; i < items.size(); ++i) {
+		oss << "  " << toJson(items[i]);
+		if (i + 1 < items.size()) oss << ",";
+		oss << "\n";
+	}
+	oss << "]";
+	jsonWriteFile(path, oss.str());
 }

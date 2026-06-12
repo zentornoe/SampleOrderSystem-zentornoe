@@ -85,20 +85,12 @@ bool JsonOrderRepository::exists(const std::string& id)
 
 int JsonOrderRepository::getNextSequence()
 {
-	return (int)load().size() + 1;
+	return static_cast<int>(load().size()) + 1;
 }
 
 void JsonOrderRepository::persist(const std::vector<Order>& orders)
 {
-	std::ostringstream oss;
-	oss << "[\n";
-	for (size_t i = 0; i < orders.size(); ++i) {
-		oss << "  " << toJson(orders[i]);
-		if (i + 1 < orders.size()) oss << ",";
-		oss << "\n";
-	}
-	oss << "]";
-	jsonWriteFile(m_filePath, oss.str());
+	jsonPersistArray(m_filePath, orders, toJson);
 }
 
 std::vector<Order> JsonOrderRepository::load() const
