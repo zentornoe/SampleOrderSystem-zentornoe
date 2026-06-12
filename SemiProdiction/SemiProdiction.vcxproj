@@ -155,6 +155,7 @@
   <!-- ── 프로덕션 소스: Release에서만 컴파일 ── -->
   <ItemGroup>
     <ClCompile Include="src\main.cpp" Condition="'$(Configuration)'=='Release'" />
+    <ClCompile Include="src\app\Application.cpp" Condition="'$(Configuration)'=='Release'" />
   </ItemGroup>
 
   <!-- ── Model .cpp: 항상 컴파일 (Debug 테스트 링크 포함) ── -->
@@ -230,6 +231,7 @@
     <ClInclude Include="src\view\OrderView.h" />
     <ClInclude Include="src\view\MonitorView.h" />
     <ClInclude Include="src\view\ProductionView.h" />
+    <ClInclude Include="src\app\Application.h" />
     <ClInclude Include="test\mock\MockSampleRepository.h" />
     <ClInclude Include="test\mock\MockOrderRepository.h" />
   </ItemGroup>
