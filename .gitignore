@@ -35,6 +35,4 @@ data/
 *.bak
 *.log
 
-# tmp 폴더는 git에 포함 (PLAN.md 등 문서 관리)
-!tmp/
-!tmp/**
+tmp/
