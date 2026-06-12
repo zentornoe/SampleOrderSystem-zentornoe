@@ -12,6 +12,7 @@ public:
 						double avgProdTime, double yield, int stock);
 	Sample getSample(const std::string& id) const;
 	std::vector<Sample> getAllSamples() const;
+	std::vector<Sample> searchByName(const std::string& keyword) const;
 	void addStock(const std::string& id, int quantity);
 
 private:
