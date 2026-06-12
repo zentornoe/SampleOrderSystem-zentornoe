@@ -15,10 +15,11 @@ public:
 								  ISampleRepository& sampleRepo,
 								  const std::queue<ProductionJob>& prodQueue);
 
-	OrderSummary getOrderSummary() const;
-	StockStatus  getStockStatus(const std::string& sampleId) const;
-	int          getEffectiveStock(const std::string& sampleId, long long nowSec) const;
+	OrderSummary       getOrderSummary() const;
+	StockStatus        getStockStatus(const std::string& sampleId) const;
+	int                getEffectiveStock(const std::string& sampleId, long long nowSec) const;
 	std::vector<Order> getActiveOrders() const;
+	ProductionProgress getProductionProgress(long long nowSec) const;
 
 private:
 	IOrderRepository&               m_orderRepo;

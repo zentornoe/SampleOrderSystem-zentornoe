@@ -44,6 +44,20 @@ int MonitoringController::getEffectiveStock(const std::string& sampleId, long lo
 	return sample.getStock() + getInProgressUnits(m_prodQueue, nowSec);
 }
 
+ProductionProgress MonitoringController::getProductionProgress(long long nowSec) const
+{
+	if (m_prodQueue.empty()) return {};
+	const ProductionJob& job = m_prodQueue.front();
+	ProductionProgress p;
+	p.hasJob           = true;
+	p.orderId          = job.getOrderId();
+	p.sampleId         = job.getSampleId();
+	p.currentProd      = job.getCurrentProd(nowSec);
+	p.totalProd        = job.getActualProd();
+	p.completionTimeSec = job.getCompletionTime();
+	return p;
+}
+
 std::vector<Order> MonitoringController::getActiveOrders() const
 {
 	auto orders = m_orderRepo.findAll();

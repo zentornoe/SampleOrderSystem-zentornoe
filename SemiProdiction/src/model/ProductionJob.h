@@ -7,6 +7,9 @@ public:
 	ProductionJob() = default;
 	ProductionJob(const std::string& orderId, const std::string& sampleId,
 				  int shortage, double yield, double avgProdTime);
+	// 재시작 복원 전용 — startTime을 현재 시각 대신 저장된 값으로 주입한다
+	ProductionJob(const std::string& orderId, const std::string& sampleId,
+				  int shortage, double yield, double avgProdTime, long long startTime);
 
 	const std::string& getOrderId() const;
 	const std::string& getSampleId() const;

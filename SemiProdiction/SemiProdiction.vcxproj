@@ -169,6 +169,7 @@
   <ItemGroup>
     <ClCompile Include="src\repository\JsonSampleRepository.cpp" />
     <ClCompile Include="src\repository\JsonOrderRepository.cpp" />
+    <ClCompile Include="src\repository\JsonProductionJobRepository.cpp" />
   </ItemGroup>
 
   <!-- ── Controller + View .cpp: 항상 컴파일 ── -->
@@ -217,6 +218,7 @@
     <ClInclude Include="src\repository\JsonHelper.h" />
     <ClInclude Include="src\repository\JsonSampleRepository.h" />
     <ClInclude Include="src\repository\JsonOrderRepository.h" />
+    <ClInclude Include="src\repository\JsonProductionJobRepository.h" />
     <ClInclude Include="src\controller\ProductionUtils.h" />
     <ClInclude Include="src\controller\SampleController.h" />
     <ClInclude Include="src\controller\OrderController.h" />

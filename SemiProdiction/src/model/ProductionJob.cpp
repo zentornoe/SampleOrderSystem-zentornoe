@@ -13,6 +13,15 @@ ProductionJob::ProductionJob(const std::string& orderId, const std::string& samp
 	m_actualProd = static_cast<int>(std::ceil(static_cast<double>(shortage) / (yield * YIELD_SAFETY_MARGIN)));
 }
 
+ProductionJob::ProductionJob(const std::string& orderId, const std::string& sampleId,
+	int shortage, double yield, double avgProdTime, long long startTime)
+	: m_orderId(orderId), m_sampleId(sampleId),
+	  m_shortage(shortage), m_yield(yield), m_avgProdTime(avgProdTime),
+	  m_startTime(startTime)
+{
+	m_actualProd = static_cast<int>(std::ceil(static_cast<double>(shortage) / (yield * YIELD_SAFETY_MARGIN)));
+}
+
 const std::string& ProductionJob::getOrderId() const { return m_orderId; }
 const std::string& ProductionJob::getSampleId() const { return m_sampleId; }
 int ProductionJob::getShortage() const { return m_shortage; }

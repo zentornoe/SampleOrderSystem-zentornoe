@@ -6,6 +6,7 @@
 #include "model/ProductionJob.h"
 #include "repository/JsonSampleRepository.h"
 #include "repository/JsonOrderRepository.h"
+#include "repository/JsonProductionJobRepository.h"
 #include "controller/SampleController.h"
 #include "controller/OrderController.h"
 #include "controller/ProductionController.h"
@@ -23,8 +24,8 @@
 static void handleSampleMenu(SampleController& ctrl, SampleView& view, MainView& mainView);
 static void handleOrderReserve(OrderController& orderCtrl, OrderView& orderView);
 static void handleOrderApproveReject(OrderController& orderCtrl, OrderView& orderView, MainView& mainView, long long nowSec);
-static void handleProduction(ProductionController& prodCtrl, ProductionView& prodView);
-static void handleMonitoring(MonitoringController& monCtrl, SampleController& sampleCtrl, MonitorView& monView);
+static void handleProduction(ProductionController& prodCtrl, ProductionView& prodView, long long nowSec);
+static void handleMonitoring(MonitoringController& monCtrl, SampleController& sampleCtrl, MonitorView& monView, long long nowSec);
 static void handleRelease(ReleaseController& releaseCtrl, OrderView& orderView);
 
 // ─────────────────────────────────────────────
@@ -119,21 +120,22 @@ static void handleOrderApproveReject(OrderController& orderCtrl, OrderView& orde
 // ─────────────────────────────────────────────
 //  생산 현황
 // ─────────────────────────────────────────────
-static void handleProduction(ProductionController& prodCtrl, ProductionView& prodView)
+static void handleProduction(ProductionController& prodCtrl, ProductionView& prodView, long long nowSec)
 {
 	if (prodCtrl.hasJob()) {
-		prodView.showCurrentJob(prodCtrl.peekNextJob());
+		prodView.showCurrentJob(prodCtrl.peekNextJob(), nowSec);
 	}
-	prodView.showProductionQueue(prodCtrl.getQueue());
+	prodView.showProductionQueue(prodCtrl.getQueue(), nowSec);
 }
 
 // ─────────────────────────────────────────────
 //  모니터링
 // ─────────────────────────────────────────────
-static void handleMonitoring(MonitoringController& monCtrl, SampleController& sampleCtrl, MonitorView& monView)
+static void handleMonitoring(MonitoringController& monCtrl, SampleController& sampleCtrl, MonitorView& monView, long long nowSec)
 {
 	monView.showOrderSummary(monCtrl.getOrderSummary());
 	monView.showActiveOrders(monCtrl.getActiveOrders());
+	monView.showProductionProgress(monCtrl.getProductionProgress(nowSec));
 	for (const auto& s : sampleCtrl.getAllSamples()) {
 		monView.showStockStatus(s, monCtrl.getStockStatus(s.getId()));
 	}
@@ -159,11 +161,12 @@ static void handleRelease(ReleaseController& releaseCtrl, OrderView& orderView)
 int main()
 {
 	// Repository
-	JsonSampleRepository sampleRepo("data/samples.json");
-	JsonOrderRepository  orderRepo("data/orders.json");
+	JsonSampleRepository        sampleRepo("data/samples.json");
+	JsonOrderRepository         orderRepo ("data/orders.json");
+	JsonProductionJobRepository jobRepo   ("data/production_jobs.json");
 
-	// 공유 생산 큐
-	std::queue<ProductionJob> prodQueue;
+	// 공유 생산 큐 — 재시작 시 이전 상태 복원
+	std::queue<ProductionJob> prodQueue = jobRepo.load();
 
 	// Controller 조립
 	SampleController     sampleCtrl(sampleRepo);
@@ -189,6 +192,7 @@ int main()
 		try {
 			switch (choice) {
 			case 0:
+				jobRepo.save(prodQueue);
 				std::cout << "시스템을 종료합니다.\n";
 				return 0;
 			case 1:
@@ -201,10 +205,10 @@ int main()
 				handleOrderApproveReject(orderCtrl, orderView, mainView, nowSec);
 				break;
 			case 4:
-				handleProduction(prodCtrl, prodView);
+				handleProduction(prodCtrl, prodView, nowSec);
 				break;
 			case 5:
-				handleMonitoring(monCtrl, sampleCtrl, monView);
+				handleMonitoring(monCtrl, sampleCtrl, monView, nowSec);
 				break;
 			case 6:
 				handleRelease(releaseCtrl, orderView);
@@ -216,6 +220,8 @@ int main()
 		} catch (const std::exception& e) {
 			mainView.showError(e.what());
 		}
+		// tick() 완료 또는 approveOrder() 로 큐가 변경됐을 수 있으므로 매 루프 저장
+		jobRepo.save(prodQueue);
 	}
 
 	return 0;

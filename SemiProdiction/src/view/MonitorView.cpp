@@ -2,6 +2,8 @@
 #include "../model/OrderStatus.h"
 #include <iostream>
 #include <iomanip>
+#include <ctime>
+#include <cstdio>
 
 namespace {
 	constexpr int TABLE_WIDTH = 64;
@@ -42,6 +44,36 @@ void MonitorView::showActiveOrders(const std::vector<Order>& orders) const
 			<< toString(order.getStatus())
 			<< "\n";
 	}
+}
+
+void MonitorView::showProductionProgress(const ProductionProgress& p) const
+{
+	std::cout << "=== 생산 진행 현황 ===\n"
+	          << std::string(TABLE_WIDTH, '-') << "\n";
+	if (!p.hasJob) {
+		std::cout << "현재 생산 중인 작업이 없습니다.\n";
+		return;
+	}
+
+	// 완료 예정 시각: Unix timestamp → YYYY-MM-DD HH:MM
+	std::time_t t = static_cast<std::time_t>(p.completionTimeSec);
+	std::tm tm_buf{};
+#ifdef _WIN32
+	localtime_s(&tm_buf, &t);
+#else
+	localtime_r(&t, &tm_buf);
+#endif
+	char timeBuf[20];
+	std::strftime(timeBuf, sizeof(timeBuf), "%Y-%m-%d %H:%M", &tm_buf);
+
+	int pct = (p.totalProd > 0)
+	          ? static_cast<int>(p.currentProd * 100.0 / p.totalProd)
+	          : 0;
+
+	std::cout << "주문: " << p.orderId << "  시료: " << p.sampleId << "\n"
+	          << "진행: " << p.currentProd << "/" << p.totalProd << "개 ("
+	          << pct << "%)\n"
+	          << "완료 예정: " << timeBuf << "\n";
 }
 
 void MonitorView::showStockStatus(const Sample& sample, StockStatus status) const
