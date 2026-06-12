@@ -17,6 +17,12 @@ std::string OrderController::reserveOrder(const std::string& sampleId,
 	if (!m_sampleRepo.exists(sampleId))
 		throw std::runtime_error("존재하지 않는 시료 ID: " + sampleId);
 
+	if (quantity <= 0)
+		throw std::invalid_argument("수량은 1 이상이어야 합니다.");
+
+	if (customerName.empty())
+		throw std::invalid_argument("고객명은 비어있을 수 없습니다.");
+
 	int seq = m_orderRepo.getNextSequence();
 	std::string orderId = Order::generateOrderId(seq);
 
