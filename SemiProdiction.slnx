@@ -3,5 +3,5 @@
     <Platform Name="x64" />
     <Platform Name="x86" />
   </Configurations>
-  <Project Path="SemiProdiction/SemiProdiction.vcxproj" />
+  <Project Path="SemiProdiction/SemiProdiction.vcxproj" Id="2013b803-2c6b-4e29-8aa4-10256ec6db3e" />
 </Solution>

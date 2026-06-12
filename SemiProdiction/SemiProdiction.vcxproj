@@ -70,6 +70,8 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
+
+  <!-- ── Debug: 테스트 실행 ── -->
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -77,24 +79,8 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-    </ClCompile>
-    <Link>
-      <SubSystem>Console</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-    </Link>
-    <Manifest>
-      <EnableSegmentHeap>true</EnableSegmentHeap>
-    </Manifest>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+      <!-- $(ProjectDir) 추가: test/mock/ 에서 "src/..." 형태로 include 가능 -->
+      <AdditionalIncludeDirectories>$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -109,6 +95,27 @@
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalIncludeDirectories>$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <Manifest>
+      <EnableSegmentHeap>true</EnableSegmentHeap>
+    </Manifest>
+  </ItemDefinitionGroup>
+
+  <!-- ── Release: 프로그램 실행 ── -->
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
@@ -138,9 +145,46 @@
       <EnableSegmentHeap>true</EnableSegmentHeap>
     </Manifest>
   </ItemDefinitionGroup>
+
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+
+  <!-- ── 프로덕션 소스: Release에서만 컴파일 ── -->
+  <ItemGroup>
+    <ClCompile Include="src\main.cpp" Condition="'$(Configuration)'=='Release'" />
+  </ItemGroup>
+
+  <!-- ── 테스트 소스: Debug에서만 컴파일 ── -->
+  <ItemGroup>
+    <ClCompile Include="test\test_runner.cpp" Condition="'$(Configuration)'=='Debug'" />
+    <ClCompile Include="test\test_phase0_smoke.cpp" Condition="'$(Configuration)'=='Debug'" />
+  </ItemGroup>
+
+  <!-- ── 헤더 파일 ── -->
+  <ItemGroup>
+    <ClInclude Include="src\model\OrderStatus.h" />
+    <ClInclude Include="src\model\Sample.h" />
+    <ClInclude Include="src\model\Order.h" />
+    <ClInclude Include="src\model\ProductionJob.h" />
+    <ClInclude Include="src\repository\ISampleRepository.h" />
+    <ClInclude Include="src\repository\IOrderRepository.h" />
+    <ClInclude Include="src\repository\JsonSampleRepository.h" />
+    <ClInclude Include="src\repository\JsonOrderRepository.h" />
+    <ClInclude Include="src\controller\SampleController.h" />
+    <ClInclude Include="src\controller\OrderController.h" />
+    <ClInclude Include="src\controller\ProductionController.h" />
+    <ClInclude Include="src\controller\MonitoringController.h" />
+    <ClInclude Include="src\controller\ReleaseController.h" />
+    <ClInclude Include="src\view\MainView.h" />
+    <ClInclude Include="src\view\SampleView.h" />
+    <ClInclude Include="src\view\OrderView.h" />
+    <ClInclude Include="src\view\MonitorView.h" />
+    <ClInclude Include="src\view\ProductionView.h" />
+    <ClInclude Include="test\mock\MockSampleRepository.h" />
+    <ClInclude Include="test\mock\MockOrderRepository.h" />
+  </ItemGroup>
+
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="..\packages\gmock.1.11.0\build\native\gmock.targets" Condition="Exists('..\packages\gmock.1.11.0\build\native\gmock.targets')" />
