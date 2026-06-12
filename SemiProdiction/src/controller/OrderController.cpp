@@ -1,5 +1,6 @@
 ﻿#include "OrderController.h"
 #include <stdexcept>
+#include <cmath>
 
 OrderController::OrderController(IOrderRepository& orderRepo,
 								 ISampleRepository& sampleRepo,
@@ -49,10 +50,36 @@ std::vector<Order> OrderController::getAllOrders() const
 
 void OrderController::approveOrder(const std::string& orderId)
 {
-	throw std::logic_error("approveOrder: 미구현 (Phase 5)");
+	Order order = m_orderRepo.findById(orderId);
+
+	if (order.getStatus() != OrderStatus::RESERVED)
+		throw std::logic_error("승인 가능한 주문이 아닙니다: " + orderId);
+
+	Sample sample = m_sampleRepo.findById(order.getSampleId());
+
+	if (sample.isStockEnough(order.getQuantity()))
+	{
+		// 재고 충분 → 즉시 CONFIRMED
+		order.confirm();
+		sample.reserveQty(order.getQuantity());
+		m_sampleRepo.update(sample);
+		m_orderRepo.update(order);
+	}
+	else
+	{
+		// 재고 부족 → 생산라인 등록 후 PRODUCING
+		int shortage = order.getQuantity() - sample.getStock();
+		ProductionJob job(order.getOrderId(), order.getSampleId(),
+						  shortage, sample.getYield(), sample.getAvgProdTime());
+		m_prodQueue.push(job);
+		order.sendToProduction();
+		m_orderRepo.update(order);
+	}
 }
 
 void OrderController::rejectOrder(const std::string& orderId)
 {
-	throw std::logic_error("rejectOrder: 미구현 (Phase 5)");
+	Order order = m_orderRepo.findById(orderId);
+	order.reject();
+	m_orderRepo.update(order);
 }
