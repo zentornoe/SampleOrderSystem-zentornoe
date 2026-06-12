@@ -1,4 +1,8 @@
 ﻿#include "ProductionJob.h"
+#include <cmath>
+#include <algorithm>
+
+static constexpr double YIELD_SAFETY_MARGIN = 0.9;
 
 ProductionJob::ProductionJob(const std::string& orderId, const std::string& sampleId,
 	int shortage, double yield, double avgProdTime)
@@ -6,7 +10,7 @@ ProductionJob::ProductionJob(const std::string& orderId, const std::string& samp
 	  m_shortage(shortage), m_yield(yield), m_avgProdTime(avgProdTime),
 	  m_startTime(static_cast<long long>(std::time(nullptr)))
 {
-	m_actualProd = static_cast<int>(std::ceil(static_cast<double>(shortage) / (yield * 0.9)));
+	m_actualProd = static_cast<int>(std::ceil(static_cast<double>(shortage) / (yield * YIELD_SAFETY_MARGIN)));
 }
 
 const std::string& ProductionJob::getOrderId() const { return m_orderId; }

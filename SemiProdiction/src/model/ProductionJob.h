@@ -1,8 +1,6 @@
 ﻿#pragma once
 #include <string>
 #include <ctime>
-#include <cmath>
-#include <algorithm>
 
 class ProductionJob {
 public:

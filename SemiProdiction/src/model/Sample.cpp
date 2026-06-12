@@ -19,21 +19,21 @@ double Sample::getAvgProdTime() const { return m_avgProdTime; }
 double Sample::getYield() const { return m_yield; }
 int Sample::getStock() const { return m_stock; }
 
-void Sample::addStock(int qty)
+void Sample::addStock(int quantity)
 {
-	if (qty <= 0)
+	if (quantity <= 0)
 		throw std::invalid_argument("추가 수량은 0 초과여야 합니다.");
-	m_stock += qty;
+	m_stock += quantity;
 }
 
-void Sample::reduceStock(int qty)
+void Sample::reduceStock(int quantity)
 {
-	if (qty > m_stock)
+	if (quantity > m_stock)
 		throw std::runtime_error("재고 부족");
-	m_stock -= qty;
+	m_stock -= quantity;
 }
 
-bool Sample::isStockEnough(int qty) const
+bool Sample::isStockEnough(int quantity) const
 {
-	return m_stock >= qty;
+	return m_stock >= quantity;
 }

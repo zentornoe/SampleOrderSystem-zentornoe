@@ -8,7 +8,7 @@ std::string toString(OrderStatus status)
 	case OrderStatus::PRODUCING: return "PRODUCING";
 	case OrderStatus::RELEASE:   return "RELEASE";
 	case OrderStatus::REJECTED:  return "REJECTED";
-	default:                     return "UNKNOWN";
+	default: throw std::invalid_argument("toString: 알 수 없는 OrderStatus");
 	}
 }
 
