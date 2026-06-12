@@ -1,6 +1,5 @@
 ﻿#include "OrderController.h"
 #include <stdexcept>
-#include <cmath>
 
 OrderController::OrderController(IOrderRepository& orderRepo,
 								 ISampleRepository& sampleRepo,
@@ -59,7 +58,7 @@ void OrderController::approveOrder(const std::string& orderId)
 
 	if (sample.isStockEnough(order.getQuantity()))
 	{
-		// 재고 충분 → 즉시 CONFIRMED
+		// 생산 없이 확정하므로 가용재고를 즉시 예약해야 동일 재고의 이중 승인을 막는다
 		order.confirm();
 		sample.reserveQty(order.getQuantity());
 		m_sampleRepo.update(sample);
@@ -67,7 +66,7 @@ void OrderController::approveOrder(const std::string& orderId)
 	}
 	else
 	{
-		// 재고 부족 → 생산라인 등록 후 PRODUCING
+		// 실수율 손실(안전계수 0.9)을 감안해 부족분보다 더 생산해야 주문 수량을 보장한다
 		int shortage = order.getQuantity() - sample.getStock();
 		ProductionJob job(order.getOrderId(), order.getSampleId(),
 						  shortage, sample.getYield(), sample.getAvgProdTime());
@@ -80,6 +79,8 @@ void OrderController::approveOrder(const std::string& orderId)
 void OrderController::rejectOrder(const std::string& orderId)
 {
 	Order order = m_orderRepo.findById(orderId);
+	if (order.getStatus() != OrderStatus::RESERVED)
+		throw std::logic_error("거절 가능한 주문이 아닙니다: " + orderId);
 	order.reject();
 	m_orderRepo.update(order);
 }
