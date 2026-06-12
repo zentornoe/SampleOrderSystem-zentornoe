@@ -20,6 +20,7 @@ public:
 	void rejectOrder(const std::string& orderId);
 	Order getOrder(const std::string& orderId) const;
 	std::vector<Order> getAllOrders() const;
+	std::vector<Order> getReservedOrders() const;
 
 private:
 	IOrderRepository& m_orderRepo;
