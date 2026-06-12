@@ -1,5 +1,8 @@
 ﻿#pragma once
 #include <string>
+#include <ctime>
+#include <cmath>
+#include <algorithm>
 
 class ProductionJob {
 public:
@@ -13,6 +16,11 @@ public:
 	double getYield() const;
 	double getAvgProdTime() const;
 	int getActualProd() const;
+	double getTotalProdTime() const;
+	long long getStartTime() const;
+	long long getCompletionTime() const;
+	bool isCompleted(long long nowSec) const;
+	int getCurrentProd(long long nowSec) const;
 
 private:
 	std::string m_orderId;
@@ -20,4 +28,6 @@ private:
 	int m_shortage = 0;
 	double m_yield = 0.0;
 	double m_avgProdTime = 0.0;
+	int m_actualProd = 0;
+	long long m_startTime = 0;
 };

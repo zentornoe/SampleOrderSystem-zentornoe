@@ -1,5 +1,7 @@
 ﻿#pragma once
 #include <string>
+#include <ctime>
+#include <stdexcept>
 #include "OrderStatus.h"
 
 class Order {
@@ -16,6 +18,9 @@ public:
 	long long getCreatedAt() const;
 
 	void setStatus(OrderStatus status);
+
+	bool isMonitored() const;
+	static std::string generateOrderId(int sequence);
 
 private:
 	std::string m_orderId;
