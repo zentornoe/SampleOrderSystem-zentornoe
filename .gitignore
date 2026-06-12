@@ -1,0 +1,40 @@
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Build output
+x64/
+x86/
+Debug/
+Release/
+ipch/
+*.obj
+*.pdb
+*.ilk
+*.exp
+*.lib
+*.dll
+*.exe
+
+# CMake
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+
+# vcpkg
+vcpkg_installed/
+
+# 데이터 파일 (로컬 전용)
+data/
+
+# 임시 파일
+*.tmp
+*.bak
+*.log
+
+# tmp 폴더는 git에 포함 (PLAN.md 등 문서 관리)
+!tmp/
+!tmp/**
