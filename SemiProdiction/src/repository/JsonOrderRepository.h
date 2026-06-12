@@ -9,6 +9,7 @@ public:
 	void save(const Order& order) override;
 	Order findById(const std::string& id) override;
 	std::vector<Order> findAll() override;
+	std::vector<Order> findByStatus(OrderStatus status) override;
 	void update(const Order& order) override;
 	bool exists(const std::string& id) override;
 	int getNextSequence() override;

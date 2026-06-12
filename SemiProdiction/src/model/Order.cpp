@@ -1,6 +1,7 @@
 ﻿#include "Order.h"
 #include <ctime>
 #include <cstdio>
+#include <stdexcept>
 
 Order::Order(const std::string& orderId, const std::string& sampleId,
 	const std::string& customerName, int quantity)
@@ -12,6 +13,15 @@ Order::Order(const std::string& orderId, const std::string& sampleId,
 		throw std::invalid_argument("수량은 0 초과여야 합니다.");
 	if (customerName.empty())
 		throw std::invalid_argument("고객명은 비어 있을 수 없습니다.");
+}
+
+Order::Order(const std::string& orderId, const std::string& sampleId,
+	const std::string& customerName, int quantity,
+	OrderStatus status, long long createdAt)
+	: m_orderId(orderId), m_sampleId(sampleId),
+	  m_customerName(customerName), m_quantity(quantity),
+	  m_status(status), m_createdAt(createdAt)
+{
 }
 
 const std::string& Order::getOrderId() const { return m_orderId; }

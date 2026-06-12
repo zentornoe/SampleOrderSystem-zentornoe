@@ -9,6 +9,7 @@ public:
 	void save(const Sample& sample) override;
 	Sample findById(const std::string& id) override;
 	std::vector<Sample> findAll() override;
+	std::vector<Sample> findByName(const std::string& keyword) override;
 	void update(const Sample& sample) override;
 	bool exists(const std::string& id) override;
 
