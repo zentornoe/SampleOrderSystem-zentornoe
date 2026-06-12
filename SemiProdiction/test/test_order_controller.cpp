@@ -122,22 +122,24 @@ TEST_F(OrderControllerTest, ApproveOrder_SufficientStock_OrderBecomesConfirmed)
 	EXPECT_TRUE(prodQueue.empty());
 }
 
-// 7. 재고 부족(30 < 200) 시 PRODUCING 전환, prodQueue에 1건 등록
+// 7. 재고 부족(30 < 200) 시 PRODUCING 전환, prodQueue에 1건 등록, reservedQty 저장
 TEST_F(OrderControllerTest, ApproveOrder_InsufficientStock_OrderBecomesProducing)
 {
 	Order  inOrder(TEST_ORDER_ID, TEST_SAMPLE_ID, "삼성전자", 200);
 	Sample inSample(TEST_SAMPLE_ID, "테스트시료", 5.0, 0.92, 30);
-	Order  capturedOrder = inOrder;
+	Order  capturedOrder  = inOrder;
+	Sample capturedSample = inSample;
 
 	EXPECT_CALL(mockOrderRepo,  findById(TEST_ORDER_ID)).WillOnce(Return(inOrder));
 	EXPECT_CALL(mockSampleRepo, findById(TEST_SAMPLE_ID)).WillOnce(Return(inSample));
+	EXPECT_CALL(mockSampleRepo, update(_)).WillOnce(SaveArg<0>(&capturedSample));
 	EXPECT_CALL(mockOrderRepo,  update(_)).WillOnce(SaveArg<0>(&capturedOrder));
-	EXPECT_CALL(mockSampleRepo, update(_)).Times(0);
 
 	ctrl->approveOrder(TEST_ORDER_ID);
 
 	EXPECT_EQ(capturedOrder.getStatus(), OrderStatus::PRODUCING);
 	EXPECT_EQ(prodQueue.size(), 1u);
+	EXPECT_EQ(capturedSample.getReservedQty(), 200);
 }
 
 // 8. 재고 = 주문 수량 경계값(100 == 100) → CONFIRMED, prodQueue 비어있음
@@ -201,7 +203,7 @@ TEST_F(OrderControllerTest, GetReservedOrders_ReturnsTwoOrders)
 }
 
 // 12. 재고 부족 승인 시 생산량 공식(206) 검증
-//     shortage = 200 - 30 = 170
+//     reservedQty=0, stock=30 → available=30, shortage=200-30=170
 //     actualProd = ceil(170 / (0.92 * 0.9)) = ceil(205.31) = 206
 TEST_F(OrderControllerTest, ApproveOrder_InsufficientStock_ProductionJobHasCorrectActualProd)
 {
@@ -210,8 +212,8 @@ TEST_F(OrderControllerTest, ApproveOrder_InsufficientStock_ProductionJobHasCorre
 
 	EXPECT_CALL(mockOrderRepo,  findById(TEST_ORDER_ID)).WillOnce(Return(inOrder));
 	EXPECT_CALL(mockSampleRepo, findById(TEST_SAMPLE_ID)).WillOnce(Return(inSample));
+	EXPECT_CALL(mockSampleRepo, update(_)).Times(1);
 	EXPECT_CALL(mockOrderRepo,  update(_)).Times(1);
-	EXPECT_CALL(mockSampleRepo, update(_)).Times(0);
 
 	ctrl->approveOrder(TEST_ORDER_ID);
 

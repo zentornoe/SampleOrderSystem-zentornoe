@@ -200,6 +200,7 @@
     <ClCompile Include="test\test_monitoring_controller.cpp" Condition="'$(Configuration)'=='Debug'" />
     <ClCompile Include="test\test_release_controller.cpp" Condition="'$(Configuration)'=='Debug'" />
     <ClCompile Include="test\test_production_stock_flow.cpp" Condition="'$(Configuration)'=='Debug'" />
+    <ClCompile Include="test\test_stock_aware_approve.cpp" Condition="'$(Configuration)'=='Debug'" />
   </ItemGroup>
 
   <!-- ── 헤더 파일 ── -->

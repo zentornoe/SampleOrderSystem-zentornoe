@@ -16,7 +16,7 @@ public:
 	std::string reserveOrder(const std::string& sampleId,
 							 const std::string& customerName,
 							 int quantity);
-	void approveOrder(const std::string& orderId);
+	void approveOrder(const std::string& orderId, long long nowSec = 0LL);
 	void rejectOrder(const std::string& orderId);
 	Order getOrder(const std::string& orderId) const;
 	std::vector<Order> getAllOrders() const;

@@ -1,4 +1,5 @@
 ﻿#include "OrderController.h"
+#include <algorithm>
 #include <stdexcept>
 
 OrderController::OrderController(IOrderRepository& orderRepo,
@@ -47,7 +48,7 @@ std::vector<Order> OrderController::getAllOrders() const
 	return m_orderRepo.findAll();
 }
 
-void OrderController::approveOrder(const std::string& orderId)
+void OrderController::approveOrder(const std::string& orderId, long long nowSec)
 {
 	Order order = m_orderRepo.findById(orderId);
 
@@ -56,9 +57,14 @@ void OrderController::approveOrder(const std::string& orderId)
 
 	Sample sample = m_sampleRepo.findById(order.getSampleId());
 
-	if (sample.isStockEnough(order.getQuantity()))
+	// 생산 진척도를 반영한 실효재고로 가용재고를 계산한다
+	int inProgress     = m_prodQueue.empty() ? 0 : m_prodQueue.front().getCurrentProd(nowSec);
+	int effectiveStock = sample.getStock() + inProgress;
+	int availableStock = effectiveStock - sample.getReservedQty();
+
+	if (availableStock >= order.getQuantity())
 	{
-		// 생산 없이 확정하므로 가용재고를 즉시 예약해야 동일 재고의 이중 승인을 막는다
+		// 가용재고를 즉시 예약해야 동일 재고의 이중 승인을 막는다
 		order.confirm();
 		sample.reserveQty(order.getQuantity());
 		m_sampleRepo.update(sample);
@@ -66,12 +72,15 @@ void OrderController::approveOrder(const std::string& orderId)
 	}
 	else
 	{
-		// 실수율 손실(안전계수 0.9)을 감안해 부족분보다 더 생산해야 주문 수량을 보장한다
-		int shortage = order.getQuantity() - sample.getStock();
+		// 실수율 손실(안전계수 0.9)을 감안해 가용재고 부족분보다 더 생산해야 주문 수량을 보장한다
+		int shortage = order.getQuantity() - std::max(0, availableStock);
 		ProductionJob job(order.getOrderId(), order.getSampleId(),
 						  shortage, sample.getYield(), sample.getAvgProdTime());
 		m_prodQueue.push(job);
 		order.sendToProduction();
+		// 생산 완료 후 출고 추적을 위해 예약 수량 등록
+		sample.reserveQty(order.getQuantity());
+		m_sampleRepo.update(sample);
 		m_orderRepo.update(order);
 	}
 }

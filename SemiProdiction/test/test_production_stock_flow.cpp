@@ -143,10 +143,9 @@ TEST_F(ProductionStockFlowTest,
        AfterProduction_OriginalAndIntermediateOrderBothReleasable)
 {
 	// 생산 완료 후 재고 = 112 (25 + 87, 중간 출고 5 반영)
-	// Order1(qty=100)이 CONFIRMED 상태
+	// Order1(qty=100)이 CONFIRMED 상태, PRODUCING 시 reserveQty(100) 호출됨
 	Order  confirmedOrder = makeOrder("ORD-001", OrderStatus::CONFIRMED, 100);
-	// reservedQty=0 (생산 경로는 reserveQty 미호출)
-	Sample postProdSample = makeSample(112, 0);
+	Sample postProdSample = makeSample(112, 100);
 
 	Sample capturedSample = postProdSample;
 
@@ -215,10 +214,10 @@ TEST_F(ProductionStockFlowTest,
 TEST_F(ProductionStockFlowTest,
        ProductionSurplus_MultipleSmallOrdersServedFromRemainingStock)
 {
-	// 생산 완료 후 재고=112, 이미 예약된 재고 없음 (생산 경로)
-	// Order1(qty=100) 출고 → stock=12 남음
+	// 생산 완료 후 재고=112. PRODUCING 시 reserveQty(100) 호출됨
+	// Order1(qty=100) 출고 → stock=12, reservedQty=0 남음
 	Order  ord1    = makeOrder("ORD-001", OrderStatus::CONFIRMED, 100);
-	Sample sample1 = makeSample(112, 0);
+	Sample sample1 = makeSample(112, 100);
 	Sample captured1 = sample1;
 
 	EXPECT_CALL(mockOrderRepo,  findById("ORD-001")).WillOnce(Return(ord1));

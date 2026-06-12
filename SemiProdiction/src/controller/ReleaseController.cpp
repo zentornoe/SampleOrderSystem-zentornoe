@@ -30,8 +30,6 @@ void ReleaseController::releaseOrder(const std::string& orderId)
 	m_orderRepo.update(order);
 
 	sample.reduceStock(order.getQuantity());
-	// 직접 CONFIRMED 경로에서만 reservedQty가 설정되므로 조건부 해제
-	if (sample.getReservedQty() >= order.getQuantity())
-		sample.releaseQty(order.getQuantity());
+	sample.releaseQty(order.getQuantity());
 	m_sampleRepo.update(sample);
 }

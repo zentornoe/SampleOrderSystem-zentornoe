@@ -2,11 +2,13 @@
 #include <gmock/gmock.h>
 #include <memory>
 #include <vector>
+#include <queue>
 #include "src/controller/MonitoringController.h"
 #include "src/model/Order.h"
 #include "src/model/Sample.h"
 #include "src/model/OrderStatus.h"
 #include "src/model/MonitoringSummary.h"
+#include "src/model/ProductionJob.h"
 #include "test/mock/MockOrderRepository.h"
 #include "test/mock/MockSampleRepository.h"
 
@@ -20,10 +22,11 @@ class MonitoringControllerTest : public ::testing::Test {
 protected:
 	MockOrderRepository  mockOrderRepo;
 	MockSampleRepository mockSampleRepo;
+	std::queue<ProductionJob> prodQueue;
 	std::unique_ptr<MonitoringController> ctrl;
 
 	void SetUp() override {
-		ctrl = std::make_unique<MonitoringController>(mockOrderRepo, mockSampleRepo);
+		ctrl = std::make_unique<MonitoringController>(mockOrderRepo, mockSampleRepo, prodQueue);
 	}
 
 	Sample makeSample(int stock) {
@@ -95,4 +98,31 @@ TEST_F(MonitoringControllerTest, GetActiveOrders_FourOrders_ReturnsThreeExcludin
 	for (const auto& order : result) {
 		EXPECT_NE(order.getStatus(), OrderStatus::REJECTED);
 	}
+}
+
+// 테스트 6: 생산 진척도를 반영한 실효재고 반환
+// Job: actualProd=200, avgProdTime=10.0, totalSec=120000. 60%(72000초)에 currentProd=120.
+// stock=30 + currentProd=120 = 150
+TEST_F(MonitoringControllerTest, GetEffectiveStock_WithJobAtPartialProgress_ReturnsBaseStockPlusCurrent)
+{
+	// actualProd = ceil(162 / (0.9*0.9)) = ceil(200) = 200
+	ProductionJob job("ORD-A", "S-001", 162, 0.9, 10.0);
+	long long nowSec = job.getStartTime() + 72000LL; // 60% → currentProd=120
+	prodQueue.push(job);
+
+	EXPECT_CALL(mockSampleRepo, findById("S-001")).WillOnce(Return(makeSample(30)));
+
+	int result = ctrl->getEffectiveStock("S-001", nowSec);
+
+	EXPECT_EQ(result, 150); // 30 + 120
+}
+
+// 테스트 7: 생산 큐가 비어있을 때 기본 재고를 그대로 반환
+TEST_F(MonitoringControllerTest, GetEffectiveStock_EmptyQueue_ReturnsBaseStockOnly)
+{
+	EXPECT_CALL(mockSampleRepo, findById("S-001")).WillOnce(Return(makeSample(50)));
+
+	int result = ctrl->getEffectiveStock("S-001", 0LL);
+
+	EXPECT_EQ(result, 50);
 }

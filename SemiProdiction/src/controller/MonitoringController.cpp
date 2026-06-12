@@ -2,9 +2,11 @@
 #include "../model/OrderStatus.h"
 
 MonitoringController::MonitoringController(IOrderRepository& orderRepo,
-										   ISampleRepository& sampleRepo)
+										   ISampleRepository& sampleRepo,
+										   const std::queue<ProductionJob>& prodQueue)
 	: m_orderRepo(orderRepo)
 	, m_sampleRepo(sampleRepo)
+	, m_prodQueue(prodQueue)
 {
 }
 
@@ -33,6 +35,13 @@ StockStatus MonitoringController::getStockStatus(const std::string& sampleId,
 	if (stock == 0)          return StockStatus::DEPLETED;
 	if (stock < reservedQty) return StockStatus::SHORTAGE;
 	return StockStatus::SUFFICIENT;
+}
+
+int MonitoringController::getEffectiveStock(const std::string& sampleId, long long nowSec) const
+{
+	Sample sample    = m_sampleRepo.findById(sampleId);
+	int    inProgress = m_prodQueue.empty() ? 0 : m_prodQueue.front().getCurrentProd(nowSec);
+	return sample.getStock() + inProgress;
 }
 
 std::vector<Order> MonitoringController::getActiveOrders() const
