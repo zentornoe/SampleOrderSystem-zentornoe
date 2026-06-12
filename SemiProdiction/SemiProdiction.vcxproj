@@ -175,6 +175,7 @@
   <ItemGroup>
     <ClCompile Include="src\controller\SampleController.cpp" />
     <ClCompile Include="src\controller\OrderController.cpp" />
+    <ClCompile Include="src\controller\ProductionController.cpp" />
     <ClCompile Include="src\view\SampleView.cpp" />
     <ClCompile Include="src\view\OrderView.cpp" />
   </ItemGroup>
@@ -192,6 +193,7 @@
     <ClCompile Include="test\test_sample_controller.cpp" Condition="'$(Configuration)'=='Debug'" />
     <ClCompile Include="test\test_sample_view.cpp" Condition="'$(Configuration)'=='Debug'" />
     <ClCompile Include="test\test_order_controller.cpp" Condition="'$(Configuration)'=='Debug'" />
+    <ClCompile Include="test\test_production_controller.cpp" Condition="'$(Configuration)'=='Debug'" />
   </ItemGroup>
 
   <!-- ── 헤더 파일 ── -->
