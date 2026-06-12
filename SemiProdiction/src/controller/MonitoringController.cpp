@@ -10,7 +10,7 @@ MonitoringController::MonitoringController(IOrderRepository& orderRepo,
 
 OrderSummary MonitoringController::getOrderSummary() const
 {
-	std::vector<Order> orders = m_orderRepo.findAll();
+	auto orders = m_orderRepo.findAll();
 	OrderSummary summary;
 	for (const auto& order : orders) {
 		switch (order.getStatus()) {
@@ -37,7 +37,7 @@ StockStatus MonitoringController::getStockStatus(const std::string& sampleId,
 
 std::vector<Order> MonitoringController::getActiveOrders() const
 {
-	std::vector<Order> orders = m_orderRepo.findAll();
+	auto orders = m_orderRepo.findAll();
 	std::vector<Order> result;
 	for (const auto& order : orders) {
 		if (order.isMonitored())

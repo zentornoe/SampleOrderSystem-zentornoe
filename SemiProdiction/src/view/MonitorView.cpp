@@ -1,7 +1,6 @@
 ﻿#include "MonitorView.h"
 #include "../model/OrderStatus.h"
 #include <iostream>
-#include <string>
 #include <iomanip>
 
 void MonitorView::showOrderSummary(const OrderSummary& summary) const
@@ -23,14 +22,20 @@ void MonitorView::showActiveOrders(const std::vector<Order>& orders) const
 
 	std::cout << "=== 활성 주문 목록 ===\n"
 		<< std::string(64, '-') << "\n"
-		<< "주문번호 / 시료 / 고객명 / 수량 / 상태\n"
+		<< std::left
+		<< std::setw(20) << "주문번호"
+		<< std::setw(8)  << "시료"
+		<< std::setw(12) << "고객명"
+		<< std::setw(6)  << "수량"
+		<< "상태\n"
 		<< std::string(64, '-') << "\n";
 	for (const auto& order : orders) {
-		std::cout << order.getOrderId()
-			<< " / " << order.getSampleId()
-			<< " / " << order.getCustomerName()
-			<< " / " << order.getQuantity()
-			<< " / " << toString(order.getStatus())
+		std::cout << std::left
+			<< std::setw(20) << order.getOrderId()
+			<< std::setw(8)  << order.getSampleId()
+			<< std::setw(12) << order.getCustomerName()
+			<< std::setw(6)  << order.getQuantity()
+			<< toString(order.getStatus())
 			<< "\n";
 	}
 }
@@ -42,6 +47,7 @@ void MonitorView::showStockStatus(const Sample& sample, StockStatus status) cons
 	case StockStatus::SUFFICIENT: tag = "[여유]"; break;
 	case StockStatus::SHORTAGE:   tag = "[부족]"; break;
 	case StockStatus::DEPLETED:   tag = "[고갈]"; break;
+	default:                      tag = "[알수없음]"; break;
 	}
 	std::cout << tag
 		<< "  " << sample.getId()
