@@ -181,6 +181,8 @@
     <ClCompile Include="src\view\SampleView.cpp" />
     <ClCompile Include="src\view\OrderView.cpp" />
     <ClCompile Include="src\view\MonitorView.cpp" />
+    <ClCompile Include="src\view\MainView.cpp" />
+    <ClCompile Include="src\view\ProductionView.cpp" />
   </ItemGroup>
 
   <!-- ── 테스트 소스: Debug에서만 컴파일 ── -->
@@ -201,6 +203,7 @@
     <ClCompile Include="test\test_release_controller.cpp" Condition="'$(Configuration)'=='Debug'" />
     <ClCompile Include="test\test_production_stock_flow.cpp" Condition="'$(Configuration)'=='Debug'" />
     <ClCompile Include="test\test_stock_aware_approve.cpp" Condition="'$(Configuration)'=='Debug'" />
+    <ClCompile Include="test\test_integration.cpp" Condition="'$(Configuration)'=='Debug'" />
   </ItemGroup>
 
   <!-- ── 헤더 파일 ── -->
