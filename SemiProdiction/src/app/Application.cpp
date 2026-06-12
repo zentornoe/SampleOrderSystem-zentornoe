@@ -30,7 +30,7 @@ void Application::run()
 			switch (choice) {
 			case 0:
 				m_jobRepo.save(m_prodQueue);
-				std::cout << "시스템을 종료합니다.\n";
+				m_mainView.showExitMessage();
 				return;
 			case 1: handleSampleMenu();               break;
 			case 2: handleOrderReserve();              break;
@@ -50,18 +50,8 @@ void Application::run()
 void Application::handleSampleMenu()
 {
 	while (true) {
-		std::cout << "\n=== 시료 관리 ===\n"
-		          << "  1. 시료 등록\n"
-		          << "  2. 전체 조회\n"
-		          << "  3. 이름 검색\n"
-		          << "  0. 돌아가기\n"
-		          << "선택: ";
-		int choice = -1;
-		if (!(std::cin >> choice)) {
-			std::cin.clear();
-			std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-			continue;
-		}
+		m_mainView.showSampleSubMenu();
+		int choice = m_mainView.getSampleSubMenuChoice();
 		if (choice == 0) break;
 		switch (choice) {
 		case 1: {

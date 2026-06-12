@@ -6,4 +6,7 @@ public:
 	void showMainMenu() const;
 	int getMenuChoice() const;
 	void showError(const std::string& message) const;
+	void showExitMessage() const;
+	void showSampleSubMenu() const;
+	int getSampleSubMenuChoice() const;
 };

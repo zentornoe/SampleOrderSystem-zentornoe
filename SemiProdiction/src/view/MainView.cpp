@@ -1,5 +1,6 @@
 ﻿#include "MainView.h"
 #include <iostream>
+#include <limits>
 
 void MainView::showMainMenu() const {
 	std::cout << "\n==============================\n";
@@ -29,4 +30,27 @@ int MainView::getMenuChoice() const {
 
 void MainView::showError(const std::string& message) const {
 	std::cout << "[오류] " << message << "\n";
+}
+
+void MainView::showExitMessage() const {
+	std::cout << "시스템을 종료합니다.\n";
+}
+
+void MainView::showSampleSubMenu() const {
+	std::cout << "\n=== 시료 관리 ===\n"
+	          << "  1. 시료 등록\n"
+	          << "  2. 전체 조회\n"
+	          << "  3. 이름 검색\n"
+	          << "  0. 돌아가기\n"
+	          << "선택: ";
+}
+
+int MainView::getSampleSubMenuChoice() const {
+	int choice = -1;
+	if (!(std::cin >> choice)) {
+		std::cin.clear();
+		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+		return -1;
+	}
+	return choice;
 }

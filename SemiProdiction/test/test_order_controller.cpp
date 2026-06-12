@@ -221,3 +221,28 @@ TEST_F(OrderControllerTest, ApproveOrder_InsufficientStock_ProductionJobHasCorre
 	EXPECT_EQ(prodQueue.front().getActualProd(), 206);
 	EXPECT_EQ(prodQueue.front().getOrderId(), TEST_ORDER_ID);
 }
+// 13. PRODUCING 상태 주문 승인 시 logic_error 발생 — RESERVED 이외 상태는 전부 거절
+TEST_F(OrderControllerTest, ApproveOrder_ProducingOrder_ThrowsLogicError)
+{
+	Order inOrder(TEST_ORDER_ID, TEST_SAMPLE_ID, "삼성전자", 100,
+	              OrderStatus::PRODUCING, 0LL);
+
+	EXPECT_CALL(mockOrderRepo,  findById(TEST_ORDER_ID)).WillOnce(Return(inOrder));
+	EXPECT_CALL(mockSampleRepo, findById(_)).Times(0);
+	EXPECT_CALL(mockOrderRepo,  update(_)).Times(0);
+
+	EXPECT_THROW(ctrl->approveOrder(TEST_ORDER_ID), std::logic_error);
+}
+
+// 14. REJECTED 상태 주문 승인 시 logic_error 발생
+TEST_F(OrderControllerTest, ApproveOrder_RejectedOrder_ThrowsLogicError)
+{
+	Order inOrder(TEST_ORDER_ID, TEST_SAMPLE_ID, "삼성전자", 100,
+	              OrderStatus::REJECTED, 0LL);
+
+	EXPECT_CALL(mockOrderRepo,  findById(TEST_ORDER_ID)).WillOnce(Return(inOrder));
+	EXPECT_CALL(mockSampleRepo, findById(_)).Times(0);
+	EXPECT_CALL(mockOrderRepo,  update(_)).Times(0);
+
+	EXPECT_THROW(ctrl->approveOrder(TEST_ORDER_ID), std::logic_error);
+}

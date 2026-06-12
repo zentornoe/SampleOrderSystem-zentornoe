@@ -108,3 +108,42 @@ TEST(SampleControllerTest, SearchByName_EmptyResult_ReturnsEmptyVector)
 
 	EXPECT_TRUE(result.empty());
 }
+
+// 8. yield == 0 이면 invalid_argument가 발생하는지 검증 (하한 경계값)
+TEST(SampleControllerTest, RegisterSample_YieldZero_Throws)
+{
+	MockSampleRepository mockRepo;
+	EXPECT_CALL(mockRepo, exists("S-001")).WillOnce(Return(false));
+
+	SampleController ctrl(mockRepo);
+	EXPECT_THROW(
+		ctrl.registerSample("S-001", "test", 10.0, 0.0, 100),
+		std::invalid_argument
+	);
+}
+
+// 9. yield < 0 이면 invalid_argument가 발생하는지 검증 (음수 수율)
+TEST(SampleControllerTest, RegisterSample_NegativeYield_Throws)
+{
+	MockSampleRepository mockRepo;
+	EXPECT_CALL(mockRepo, exists("S-001")).WillOnce(Return(false));
+
+	SampleController ctrl(mockRepo);
+	EXPECT_THROW(
+		ctrl.registerSample("S-001", "test", 10.0, -0.5, 100),
+		std::invalid_argument
+	);
+}
+
+// 10. avgProdTime == 0 이면 invalid_argument가 발생하는지 검증 (0 경계값)
+TEST(SampleControllerTest, RegisterSample_AvgProdTimeZero_Throws)
+{
+	MockSampleRepository mockRepo;
+	EXPECT_CALL(mockRepo, exists("S-001")).WillOnce(Return(false));
+
+	SampleController ctrl(mockRepo);
+	EXPECT_THROW(
+		ctrl.registerSample("S-001", "test", 0.0, 0.9, 100),
+		std::invalid_argument
+	);
+}

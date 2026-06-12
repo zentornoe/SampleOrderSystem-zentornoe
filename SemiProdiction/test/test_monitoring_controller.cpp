@@ -1,5 +1,6 @@
 ﻿#include <gtest/gtest.h>
 #include <gmock/gmock.h>
+#include <ctime>
 #include <memory>
 #include <vector>
 #include <queue>
@@ -125,4 +126,34 @@ TEST_F(MonitoringControllerTest, GetEffectiveStock_EmptyQueue_ReturnsBaseStockOn
 	int result = ctrl->getEffectiveStock("S-001", 0LL);
 
 	EXPECT_EQ(result, 50);
+}
+
+// 테스트 8: getProductionProgress — 큐가 비어있을 때 hasJob=false 반환
+TEST_F(MonitoringControllerTest, GetProductionProgress_EmptyQueue_HasJobFalse)
+{
+	long long nowSec = static_cast<long long>(std::time(nullptr));
+	ProductionProgress progress = ctrl->getProductionProgress(nowSec);
+
+	EXPECT_FALSE(progress.hasJob);
+	EXPECT_EQ(progress.currentProd, 0);
+	EXPECT_EQ(progress.totalProd, 0);
+}
+
+// 테스트 9: getProductionProgress — 큐에 job이 있을 때 orderId, totalProd 포함 반환
+// Job: shortage=100, yield=0.9 → actualProd=ceil(100/0.81)=124
+// avgProdTime=0.001 → completionTime ≈ startTime
+TEST_F(MonitoringControllerTest, GetProductionProgress_WithJob_ReturnsJobInfo)
+{
+	ProductionJob job("ORD-001", "S-001", 100, 0.9, 0.001);
+	prodQueue.push(job);
+
+	long long nowSec = job.getCompletionTime() + 10000LL; // 완료 이후 시각
+	ProductionProgress progress = ctrl->getProductionProgress(nowSec);
+
+	EXPECT_TRUE(progress.hasJob);
+	EXPECT_EQ(progress.orderId, "ORD-001");
+	EXPECT_EQ(progress.sampleId, "S-001");
+	EXPECT_EQ(progress.totalProd, job.getActualProd());
+	// 완료 이후 시각이므로 currentProd == actualProd
+	EXPECT_EQ(progress.currentProd, job.getActualProd());
 }
