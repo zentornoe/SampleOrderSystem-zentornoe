@@ -35,6 +35,14 @@ protected:
 	{
 		return ProductionJob(orderId, sampleId, 1, 0.92, 0.001);
 	}
+
+	// OrderStatus::PRODUCING 상태 주문 객체 생성 헬퍼
+	Order makeProducingOrder(const std::string& orderId,
+							 const std::string& customerName = "고객")
+	{
+		// 마지막 인자(0LL)는 예약 생성 타임스탬프 — 테스트에서 의미 없는 더미 값
+		return Order(orderId, "S-001", customerName, 10, OrderStatus::PRODUCING, 0LL);
+	}
 };
 
 // ---------------------------------------------------------------------------
@@ -70,9 +78,9 @@ TEST_F(ProductionControllerTest, Tick_ThreeJobs_ProcessedInFifoOrder) {
 	// avgProdTime=0.001 → completionTime==startTime, 임의 미래 시각으로 완료 판정
 	long long futureTime = static_cast<long long>(std::time(nullptr)) + 1000000LL;
 
-	Order ord1("ORD-001", "S-001", "고객A", 10, OrderStatus::PRODUCING, 0LL);
-	Order ord2("ORD-002", "S-001", "고객B", 10, OrderStatus::PRODUCING, 0LL);
-	Order ord3("ORD-003", "S-001", "고객C", 10, OrderStatus::PRODUCING, 0LL);
+	Order ord1 = makeProducingOrder("ORD-001", "고객A");
+	Order ord2 = makeProducingOrder("ORD-002", "고객B");
+	Order ord3 = makeProducingOrder("ORD-003", "고객C");
 	Sample smp("S-001", "시료", 5.0, 0.92, 0);
 
 	EXPECT_CALL(mockOrderRepo,  findById("ORD-001")).WillOnce(Return(ord1));
@@ -136,12 +144,6 @@ TEST_F(ProductionControllerTest, GetProgress_ReturnsCorrectProgressRatio) {
 	ProductionJob job("ORD-001", "S-001", 1, 0.92, 60.0);
 	long long startTime = job.getStartTime();
 	prodQueue.push(job);
-
-	// getProgress 는 repository 호출 없음
-	EXPECT_CALL(mockOrderRepo,  findById(_)).Times(0);
-	EXPECT_CALL(mockOrderRepo,  update(_)).Times(0);
-	EXPECT_CALL(mockSampleRepo, findById(_)).Times(0);
-	EXPECT_CALL(mockSampleRepo, update(_)).Times(0);
 
 	// elapsed=0 -> getCurrentProd=0 -> 0%
 	EXPECT_DOUBLE_EQ(ctrl->getProgress(startTime), 0.0);

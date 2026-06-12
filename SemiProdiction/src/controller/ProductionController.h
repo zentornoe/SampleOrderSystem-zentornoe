@@ -1,8 +1,10 @@
 ﻿#pragma once
 #include <queue>
+#include <vector>
 #include "../model/ProductionJob.h"
-#include "../repository/IOrderRepository.h"
-#include "../repository/ISampleRepository.h"
+
+class IOrderRepository;
+class ISampleRepository;
 
 class ProductionController {
 public:
@@ -14,8 +16,7 @@ public:
 	double getProgress(long long nowSec) const; // 현재 작업 진행률 0~100
 	bool hasJob() const;
 	ProductionJob peekNextJob() const;
-	void completeCurrentJob();
-	std::queue<ProductionJob> getQueue() const;
+	std::vector<ProductionJob> getQueue() const;
 
 private:
 	std::queue<ProductionJob>& m_prodQueue;

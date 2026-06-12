@@ -1,6 +1,8 @@
 ﻿#include "ProductionController.h"
 #include "../model/Order.h"
 #include "../model/Sample.h"
+#include "../repository/IOrderRepository.h"
+#include "../repository/ISampleRepository.h"
 #include <algorithm>
 #include <stdexcept>
 
@@ -19,12 +21,10 @@ void ProductionController::tick(long long nowSec) {
 	const ProductionJob& front = m_prodQueue.front();
 	if (!front.isCompleted(nowSec)) return;
 
-	// 생산 완료: 주문 상태를 CONFIRMED 로 전이
 	Order order = m_orderRepo.findById(front.getOrderId());
 	order.completeProduction();
 	m_orderRepo.update(order);
 
-	// 생산된 수량을 재고에 반영
 	Sample sample = m_sampleRepo.findById(front.getSampleId());
 	sample.addStock(front.getActualProd());
 	m_sampleRepo.update(sample);
@@ -52,11 +52,12 @@ ProductionJob ProductionController::peekNextJob() const {
 	return m_prodQueue.front();
 }
 
-void ProductionController::completeCurrentJob() {
-	if (!m_prodQueue.empty())
-		m_prodQueue.pop();
-}
-
-std::queue<ProductionJob> ProductionController::getQueue() const {
-	return m_prodQueue;
+std::vector<ProductionJob> ProductionController::getQueue() const {
+	std::queue<ProductionJob> copy = m_prodQueue;
+	std::vector<ProductionJob> result;
+	while (!copy.empty()) {
+		result.push_back(copy.front());
+		copy.pop();
+	}
+	return result;
 }
